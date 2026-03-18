@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, Clock, Check, Sparkles } from "lucide-react"
+import { ArrowLeft, Clock, Check, Sparkles, Loader2 } from "lucide-react"
 import type { Opportunity } from "@/lib/airtable"
+import type { UserPreferences } from "@/app/page"
 
 interface ContactScreenProps {
   opportunities: Opportunity[]
+  preferences: UserPreferences
   onSubmit: () => void
   onBack: () => void
 }
@@ -20,8 +22,10 @@ const contactMethods = [
   { id: "text", label: "Text" },
 ]
 
-export function ContactScreen({ opportunities, onSubmit, onBack }: ContactScreenProps) {
+export function ContactScreen({ opportunities, preferences, onSubmit, onBack }: ContactScreenProps) {
   const [showForm, setShowForm] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -31,14 +35,52 @@ export function ContactScreen({ opportunities, onSubmit, onBack }: ContactScreen
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+    setSubmitError(null)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit()
+    setIsSubmitting(true)
+    setSubmitError(null)
+
+    try {
+      const response = await fetch("/api/survey-submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // Contact info
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          preferredContact: formData.preferredContact,
+          // Survey preferences
+          school: preferences.school,
+          grades: preferences.grades,
+          timeAvailable: preferences.timeAvailable,
+          availability: preferences.availability,
+          interests: preferences.interests,
+          contributionType: preferences.contributionType,
+          // Selected opportunities
+          selectedOpportunityIds: opportunities.map((o) => o.id),
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Submission failed")
+      }
+
+      onSubmit()
+    } catch (err) {
+      console.error("Submit error:", err)
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const isFormValid = formData.name && formData.email
+  const isFormValid = formData.name && formData.email && !isSubmitting
   const count = opportunities.length
   const isSingle = count === 1
 
@@ -221,13 +263,27 @@ export function ContactScreen({ opportunities, onSubmit, onBack }: ContactScreen
             </div>
           </div>
 
+          {/* Error Message */}
+          {submitError && (
+            <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+              {submitError}
+            </div>
+          )}
+
           {/* Submit Button */}
           <Button
             type="submit"
             disabled={!isFormValid}
             className="w-full py-6 text-base rounded-xl mt-8"
           >
-            Count me in
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                Submitting...
+              </>
+            ) : (
+              "Count me in"
+            )}
           </Button>
         </form>
 

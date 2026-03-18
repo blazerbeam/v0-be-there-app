@@ -1,54 +1,63 @@
 "use client"
 
-import { useState } from "react"
-import useSWR from "swr"
+import { useState, useEffect } from "react"
 import { ArrowLeft, Clock, Heart, Calendar, Sparkles, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Opportunity } from "@/lib/airtable"
+import type { UserPreferences } from "@/app/page"
 
 interface MatchesScreenProps {
+  preferences: UserPreferences
   onSelect: (opportunities: Opportunity[]) => void
   onBack: () => void
 }
 
-type MatchReason = "interests" | "schedule" | "quick"
-
-interface OpportunityWithReason extends Opportunity {
-  matchReason: MatchReason
+interface MatchedOpportunity extends Opportunity {
+  matchScore: number
+  matchReason: string
 }
 
-const matchReasonConfig: Record<MatchReason, { icon: typeof Heart; label: string }> = {
-  interests: { icon: Heart, label: "Right up your alley" },
-  schedule: { icon: Calendar, label: "Works with your schedule" },
-  quick: { icon: Sparkles, label: "Quick win" },
+interface MatchResponse {
+  opportunities: MatchedOpportunity[]
+  hasStrongMatches: boolean
+  totalAvailable: number
+  matchedCount: number
 }
 
-// Determine match reason based on opportunity data
-function getMatchReason(opportunity: Opportunity): MatchReason {
-  const timeCommitment = opportunity.timeCommitment.toLowerCase()
-  if (timeCommitment.includes("one-time") || timeCommitment.includes("1 hour") || timeCommitment.includes("half")) {
-    return "quick"
-  }
-  if (opportunity.availabilityTags.length > 0) {
-    return "schedule"
-  }
-  return "interests"
-}
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
-
-export function MatchesScreen({ onSelect, onBack }: MatchesScreenProps) {
+export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  
-  const { data, error, isLoading } = useSWR<{ opportunities: Opportunity[] }>(
-    "/api/opportunities",
-    fetcher
-  )
+  const [data, setData] = useState<MatchResponse | null>(null)
+  const [error, setError] = useState<Error | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const opportunities: OpportunityWithReason[] = (data?.opportunities || []).map((opp) => ({
-    ...opp,
-    matchReason: getMatchReason(opp),
-  }))
+  useEffect(() => {
+    async function fetchMatches() {
+      try {
+        setIsLoading(true)
+        const response = await fetch("/api/matches", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(preferences),
+        })
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch matches")
+        }
+        
+        const result = await response.json()
+        setData(result)
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error("Unknown error"))
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    fetchMatches()
+  }, [preferences])
+
+  const opportunities = data?.opportunities || []
+  const hasStrongMatches = data?.hasStrongMatches ?? false
 
   const toggleSelection = (id: string) => {
     setSelectedIds((prev) => {
@@ -164,10 +173,16 @@ export function MatchesScreen({ onSelect, onBack }: MatchesScreenProps) {
       {/* Title Section */}
       <div className="max-w-lg mx-auto w-full mb-8 text-center">
         <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">
-          We found a few things that might work for you
+          {hasStrongMatches 
+            ? "We found a few things that might work for you"
+            : "Here are some ways you could help"
+          }
         </h1>
         <p className="text-muted-foreground text-lg">
-          Tap any that interest you — pick as many as you like.
+          {hasStrongMatches
+            ? "Tap any that interest you — pick as many as you like."
+            : "We're still building out opportunities for your profile. In the meantime, take a look!"
+          }
         </p>
       </div>
 
@@ -219,11 +234,18 @@ function OpportunityCard({
   isSelected,
   onToggle,
 }: {
-  opportunity: OpportunityWithReason
+  opportunity: MatchedOpportunity
   isSelected: boolean
   onToggle: () => void
 }) {
-  const { icon: ReasonIcon, label: reasonLabel } = matchReasonConfig[opportunity.matchReason]
+  // Determine icon based on match reason text
+  const getReasonIcon = () => {
+    const reason = opportunity.matchReason.toLowerCase()
+    if (reason.includes("interest")) return Heart
+    if (reason.includes("schedule") || reason.includes("time") || reason.includes("quick")) return Calendar
+    return Sparkles
+  }
+  const ReasonIcon = getReasonIcon()
   
   return (
     <button
@@ -238,7 +260,7 @@ function OpportunityCard({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-1.5">
           <ReasonIcon className="w-3.5 h-3.5 text-primary" />
-          <span className="text-xs font-medium text-primary">{reasonLabel}</span>
+          <span className="text-xs font-medium text-primary">{opportunity.matchReason}</span>
         </div>
         
         {/* Selection indicator */}

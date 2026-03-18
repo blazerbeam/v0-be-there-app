@@ -26,8 +26,8 @@ export function LandingPage({ onStart }: LandingPageProps) {
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground leading-tight">
             <span className="block">Be there for your kids.</span>
             <span className="block">Be there for your school.</span>
-            <span className="block">Be there in small ways that</span>
-            <span className="block">actually fit your life.</span>
+            <span className="block">Be there in ways that fit</span>
+            <span className="block">your busy life.</span>
           </h1>
           
           <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-md mx-auto text-pretty">
