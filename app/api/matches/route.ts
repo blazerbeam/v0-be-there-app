@@ -39,8 +39,18 @@ function normalizeGrade(grade: string): string {
   return g
 }
 
+// Check if opportunity grades include "All" (meaning open to everyone)
+function isOpenToAll(oppGrades: string[]): boolean {
+  return oppGrades.some(g => normalize(g) === "all")
+}
+
 // Check if two grade arrays have any overlap
 function hasGradeOverlap(oppGrades: string[], userGrades: string[]): boolean {
+  // "All" means open to everyone
+  if (isOpenToAll(oppGrades)) {
+    return true
+  }
+  
   const normalizedOpp = oppGrades.map(normalizeGrade)
   const normalizedUser = userGrades.map(normalizeGrade)
   return normalizedOpp.some(g => normalizedUser.includes(g))
@@ -121,8 +131,8 @@ function scoreOpportunity(opp: Opportunity, preferences: UserPreferences): Score
 
   // 1. Grade relevance score (bonus for matches - grade filtering already applied)
   // Note: By the time we score, opportunities are already grade-eligible
-  if (opp.gradeRelevance.length === 0) {
-    // General opportunity - small bonus
+  if (opp.gradeRelevance.length === 0 || isOpenToAll(opp.gradeRelevance)) {
+    // General opportunity (empty or "All") - small bonus
     breakdown.gradeScore = 1
     breakdown.reasons.push("Open to all families")
   } else {
@@ -250,10 +260,15 @@ function generateMatchReason(breakdown: ScoreBreakdown, opp: Opportunity): strin
 
 // Check if opportunity is eligible for user based on grade relevance
 // Rule: If opportunity has Grade Relevance set, user grades MUST overlap. Otherwise excluded.
-// If Grade Relevance is empty, opportunity is general/open to all.
+// If Grade Relevance is empty OR contains "All", opportunity is general/open to all.
 function isGradeEligible(opp: Opportunity, userGrades: string[]): boolean {
   // Empty Grade Relevance = open to all
   if (opp.gradeRelevance.length === 0) {
+    return true
+  }
+  
+  // "All" in Grade Relevance = open to all
+  if (isOpenToAll(opp.gradeRelevance)) {
     return true
   }
   
@@ -289,8 +304,13 @@ export async function POST(request: Request) {
     console.log("[v0] Active opportunities:", activeOpportunities.length)
     
     // Separate into grade-specific and general opportunities
-    const generalOpportunities = activeOpportunities.filter(opp => opp.gradeRelevance.length === 0)
-    const gradeSpecificOpportunities = activeOpportunities.filter(opp => opp.gradeRelevance.length > 0)
+    // General = empty Grade Relevance OR contains "All"
+    const generalOpportunities = activeOpportunities.filter(opp => 
+      opp.gradeRelevance.length === 0 || isOpenToAll(opp.gradeRelevance)
+    )
+    const gradeSpecificOpportunities = activeOpportunities.filter(opp => 
+      opp.gradeRelevance.length > 0 && !isOpenToAll(opp.gradeRelevance)
+    )
     
     console.log("[v0] General opportunities (empty Grade Relevance):", generalOpportunities.length)
     console.log("[v0] Grade-specific opportunities:", gradeSpecificOpportunities.length)
