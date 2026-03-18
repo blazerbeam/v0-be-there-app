@@ -48,6 +48,17 @@ export function LandingPage({ onStart }: LandingPageProps) {
             See ways I can help
             <ArrowRight className="w-5 h-5" />
           </Button>
+
+          {/* Subtle PTO entry point */}
+          <p className="mt-8 text-sm text-muted-foreground/70">
+            Are you part of a PTO or school team?{" "}
+            <Link 
+              href="/pto-leaders" 
+              className="underline underline-offset-2 hover:text-muted-foreground transition-colors"
+            >
+              See how this works for you
+            </Link>
+          </p>
         </div>
       </section>
 
