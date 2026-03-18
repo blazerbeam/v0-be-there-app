@@ -55,8 +55,8 @@ export default function PTOLeadersPage() {
                 <span className="font-serif text-xl text-primary">1</span>
               </div>
               <div>
-                <h3 className="font-medium text-lg text-foreground mb-2">Add committees and events</h3>
-                <p className="text-muted-foreground">Import from your existing tools or add them manually. Start with what you already have.</p>
+                <h3 className="font-medium text-lg text-foreground mb-2">Add your committees and events in minutes</h3>
+                <p className="text-muted-foreground">Import or enter your PTO structure quickly — no heavy setup required.</p>
               </div>
             </div>
             <div className="flex gap-6 items-start">
@@ -64,8 +64,8 @@ export default function PTOLeadersPage() {
                 <span className="font-serif text-xl text-primary">2</span>
               </div>
               <div>
-                <h3 className="font-medium text-lg text-foreground mb-2">Break work into smaller tasks</h3>
-                <p className="text-muted-foreground">Get suggestions for tasks like &quot;setup crew,&quot; &quot;ticket table shifts,&quot; and &quot;cleanup&quot; based on your event type.</p>
+                <h3 className="font-medium text-lg text-foreground mb-2">Automatically turn events into small, manageable tasks</h3>
+                <p className="text-muted-foreground">Get suggested opportunities like setup crew, ticket table shifts, and cleanup — with tags and time estimates.</p>
               </div>
             </div>
             <div className="flex gap-6 items-start">
@@ -73,8 +73,8 @@ export default function PTOLeadersPage() {
                 <span className="font-serif text-xl text-primary">3</span>
               </div>
               <div>
-                <h3 className="font-medium text-lg text-foreground mb-2">Match parents to opportunities</h3>
-                <p className="text-muted-foreground">See who&apos;s interested, identify gaps, and connect the right people to the right tasks.</p>
+                <h3 className="font-medium text-lg text-foreground mb-2">Connect parents and see gaps instantly</h3>
+                <p className="text-muted-foreground">Parents see relevant ways to help, and you can quickly identify what still needs coverage.</p>
               </div>
             </div>
           </div>
