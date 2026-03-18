@@ -194,7 +194,6 @@ async function createParent(submission: SurveySubmission): Promise<ParentRecord 
     }
 
     const payload = { records: [{ fields }] }
-    console.log("[v0] Parents payload:", JSON.stringify(payload, null, 2))
 
     const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Parents")}`, {
       method: "POST",
@@ -236,12 +235,36 @@ async function createInteractionEvent(
   parentId: string | null
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   try {
-    // Create an empty record first to test table access
-    // Once this works, we'll add fields
+    // Only use known existing fields: Parent, Opportunity, Metadata
     const fields: Record<string, unknown> = {}
 
+    // Parent - linked record (array of IDs)
+    if (parentId) {
+      fields.Parent = [parentId]
+    }
+
+    // Opportunity - linked record (array of IDs)
+    if (submission.selectedOpportunityIds?.length) {
+      fields.Opportunity = submission.selectedOpportunityIds
+    }
+
+    // Metadata - store full submission as JSON string
+    fields.Metadata = JSON.stringify({
+      name: submission.name,
+      email: submission.email,
+      phone: submission.phone || null,
+      preferredContact: submission.preferredContact,
+      school: submission.school,
+      grades: submission.grades,
+      timeAvailable: submission.timeAvailable,
+      availability: submission.availability,
+      interests: submission.interests,
+      contributionType: submission.contributionType,
+      selectedOpportunityIds: submission.selectedOpportunityIds,
+      submittedAt: new Date().toISOString(),
+    })
+
     const payload = { records: [{ fields }] }
-    console.log("[v0] Testing Interaction Events table access with empty record")
 
     const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Interaction Events")}`, {
       method: "POST",
