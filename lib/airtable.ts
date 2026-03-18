@@ -187,32 +187,11 @@ async function findParentByEmail(email: string): Promise<ParentRecord | null> {
 
 async function createParent(submission: SurveySubmission): Promise<ParentRecord | null> {
   try {
-    // Parents table fields (exact names from Airtable):
-    // - Name, Email, Phone Number, Contact Method Preference
-    // - Children Grades (multi-select), Parent Availability (single select)
-    // - Parent Timing Preference (multi-select)
+    // Only send the minimum required fields that we know exist
+    // Skip all select fields to avoid INVALID_MULTIPLE_CHOICE_OPTIONS errors
     const fields: Record<string, unknown> = {
       Name: submission.name,
       Email: submission.email,
-    }
-
-    // Add optional fields with correct Airtable field names
-    if (submission.phone) {
-      fields["Phone Number"] = submission.phone
-    }
-    if (submission.preferredContact) {
-      fields["Contact Method Preference"] = contactMethodMap[submission.preferredContact] || submission.preferredContact
-    }
-    if (submission.grades?.length) {
-      fields["Children Grades"] = submission.grades // multi-select: array of strings
-    }
-    if (submission.timeAvailable) {
-      // Parent Availability is single select
-      fields["Parent Availability"] = timeCommitmentMap[submission.timeAvailable] || submission.timeAvailable
-    }
-    if (submission.availability?.length) {
-      // Parent Timing Preference is multi-select: array of strings
-      fields["Parent Timing Preference"] = submission.availability.map((a) => availabilityMap[a] || a)
     }
 
     const payload = { records: [{ fields }] }
@@ -257,26 +236,21 @@ async function createInteractionEvent(
   parentId: string | null
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   try {
-    // Interaction Events table fields (exact names from Airtable):
-    // - Event Type (single select), Parent (linked record), Opportunity (linked record, singular)
-    // - School (text), Metadata (long text), Timestamp (date)
-    const fields: Record<string, unknown> = {
-      "Event Type": "Survey Submission", // single select - exact value
-      Timestamp: new Date().toISOString(), // date field
-    }
+    // Only send fields we know exist - skip select fields to avoid errors
+    // Store all survey data in Metadata field as JSON
+    const fields: Record<string, unknown> = {}
 
     // Link to parent if we have one (linked record field - must be array of IDs)
     if (parentId) {
       fields.Parent = [parentId]
     }
 
-    // Link to first selected opportunity (singular linked record field)
-    // Note: "Opportunity" is singular, not "Opportunities"
+    // Link to selected opportunities (linked record field)
     if (submission.selectedOpportunityIds?.length) {
       fields.Opportunity = submission.selectedOpportunityIds // array of record IDs
     }
 
-    // Store full survey payload in Metadata as JSON (includes school and all other data)
+    // Store full survey payload in Metadata as JSON
     const metadata = {
       name: submission.name,
       email: submission.email,
