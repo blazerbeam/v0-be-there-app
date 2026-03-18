@@ -203,9 +203,20 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
       </div>
 
       {/* Footer */}
-      <footer className="max-w-lg mx-auto w-full pt-10 pb-6 text-center">
+      <footer className="max-w-lg mx-auto w-full pt-10 pb-6 text-center space-y-3">
         <p className="text-sm text-muted-foreground">
           Nothing catching your eye? <button className="text-primary underline underline-offset-2 hover:text-primary/80">See everything</button>
+        </p>
+        <p className="text-xs text-muted-foreground/70">
+          Not quite what you expected?{" "}
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSfxqOuCkBYnwl8TjMCdzbqNvsKhOPn3pu-2G1H4owIc8AsbZg/viewform?usp=dialog"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-muted-foreground transition-colors"
+          >
+            Tell us what&apos;s missing
+          </a>
         </p>
       </footer>
 
