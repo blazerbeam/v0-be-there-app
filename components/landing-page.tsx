@@ -29,15 +29,16 @@ export function LandingPage({ onStart }: LandingPageProps) {
       {/* Hero Section */}
       <section className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center">
         <div className="max-w-2xl mx-auto">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground leading-tight">
-            <span className="block">Be there for your kids.</span>
-            <span className="block">Be there for your school.</span>
-            <span className="block">Be there in ways that fit</span>
-            <span className="block">your busy life.</span>
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground leading-tight text-balance">
+            Find simple ways to help at your child&apos;s school
           </h1>
+
+          <p className="mt-6 text-base text-muted-foreground/80">
+            From 30-minute setup help to one-time event support.
+          </p>
           
-          <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-md mx-auto text-pretty">
-            Answer a few quick questions and we'll show you ways to help that match your time and interests.
+          <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-md mx-auto text-pretty">
+            Answer a few quick questions and we&apos;ll show you ways to help that match your time and interests.
           </p>
 
           <Button 
@@ -51,7 +52,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
 
           {/* Subtle PTO entry point */}
           <p className="mt-8 text-sm text-muted-foreground/70">
-            Are you part of a PTO or school team?{" "}
+            Running a PTO or school event?{" "}
             <Link 
               href="/pto-leaders" 
               className="underline underline-offset-2 hover:text-muted-foreground transition-colors"
