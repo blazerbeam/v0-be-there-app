@@ -79,6 +79,143 @@ function normalizeOpportunity(record: AirtableRecord<Record<string, unknown>>): 
   }
 }
 
+// ===================
+// Survey Response Types and Helpers
+// ===================
+
+// Mapping from UI values to Airtable values
+const timeCommitmentMap: Record<string, string> = {
+  minimal: "30 min - 1 hour/month",
+  moderate: "2-4 hours/month",
+  regular: "5+ hours/month",
+}
+
+const availabilityMap: Record<string, string> = {
+  "weekday-morning": "Weekday Mornings",
+  "weekday-afternoon": "Weekday Afternoons",
+  "weekday-evening": "Weekday Evenings",
+  weekend: "Weekends",
+  flexible: "Flexible",
+}
+
+const interestsMap: Record<string, string> = {
+  "Arts & Crafts": "Arts & Crafts",
+  "Sports & Fitness": "Sports & Fitness",
+  "Reading & Literacy": "Reading & Literacy",
+  "STEM & Tech": "STEM & Tech",
+  "Outdoor Activities": "Outdoor Activities",
+  "Event Planning": "Event Planning",
+  "Food & Hospitality": "Food & Hospitality",
+  Photography: "Photography",
+  Music: "Music",
+  Fundraising: "Fundraising",
+  Administrative: "Administrative",
+  Mentoring: "Mentoring",
+}
+
+const contributionTypeMap: Record<string, string> = {
+  volunteer: "Volunteer",
+  donate: "Donate",
+  both: "Both",
+}
+
+export interface SurveySubmission {
+  // Contact info
+  name: string
+  email: string
+  phone?: string
+  preferredContact: string
+  // Survey preferences
+  school: string
+  grades: string[]
+  timeAvailable: string
+  availability: string[]
+  interests: string[]
+  contributionType: string
+  // Selected opportunities
+  selectedOpportunityIds: string[]
+}
+
+interface AirtableSurveyFields {
+  Name: string
+  Email: string
+  Phone?: string
+  "Preferred Contact": string
+  School: string
+  Grades: string[]
+  "Time Commitment": string
+  Availability: string[]
+  Interests: string[]
+  "Contribution Type": string
+  Opportunities: string[]
+}
+
+function mapSurveyToAirtable(submission: SurveySubmission): AirtableSurveyFields {
+  return {
+    Name: submission.name,
+    Email: submission.email,
+    Phone: submission.phone || undefined,
+    "Preferred Contact": submission.preferredContact,
+    School: submission.school,
+    Grades: submission.grades,
+    "Time Commitment": timeCommitmentMap[submission.timeAvailable] || submission.timeAvailable,
+    Availability: submission.availability.map((a) => availabilityMap[a] || a),
+    Interests: submission.interests.map((i) => interestsMap[i] || i),
+    "Contribution Type": contributionTypeMap[submission.contributionType] || submission.contributionType,
+    Opportunities: submission.selectedOpportunityIds,
+  }
+}
+
+export async function createSurveyResponse(
+  submission: SurveySubmission
+): Promise<{ success: boolean; id?: string; error?: string }> {
+  if (!AIRTABLE_TOKEN || !AIRTABLE_BASE_ID) {
+    return { success: false, error: "Airtable credentials not configured" }
+  }
+
+  if (!submission.email) {
+    return { success: false, error: "Email is required" }
+  }
+
+  try {
+    const fields = mapSurveyToAirtable(submission)
+    
+    // Remove undefined fields
+    const cleanFields = Object.fromEntries(
+      Object.entries(fields).filter(([, v]) => v !== undefined)
+    )
+
+    const response = await fetch(`${AIRTABLE_API_URL}/Survey Responses`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        records: [{ fields: cleanFields }],
+      }),
+    })
+
+    if (!response.ok) {
+      const error = await response.text()
+      console.error("[Airtable] Create survey response error:", error)
+      return { success: false, error: `Airtable API error: ${response.status}` }
+    }
+
+    const data = await response.json()
+    const createdId = data.records?.[0]?.id
+
+    return { success: true, id: createdId }
+  } catch (err) {
+    console.error("[Airtable] Create survey response exception:", err)
+    return { success: false, error: "Failed to create survey response" }
+  }
+}
+
+// ===================
+// Opportunities
+// ===================
+
 export async function fetchOpportunities(): Promise<Opportunity[]> {
   if (!AIRTABLE_TOKEN || !AIRTABLE_BASE_ID) {
     throw new Error("Airtable credentials not configured")

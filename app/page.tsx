@@ -73,9 +73,10 @@ export default function Home() {
           onBack={handleBack}
         />
       )}
-      {currentScreen === "contact" && selectedOpportunities.length > 0 && (
+      {currentScreen === "contact" && selectedOpportunities.length > 0 && userPreferences && (
         <ContactScreen 
           opportunities={selectedOpportunities}
+          preferences={userPreferences}
           onSubmit={handleContactSubmit}
           onBack={handleBack}
         />
