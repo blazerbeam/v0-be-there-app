@@ -187,14 +187,14 @@ async function findParentByEmail(email: string): Promise<ParentRecord | null> {
 
 async function createParent(submission: SurveySubmission): Promise<ParentRecord | null> {
   try {
-    // Only send the minimum required fields that we know exist
-    // Skip all select fields to avoid INVALID_MULTIPLE_CHOICE_OPTIONS errors
+    // Only send the minimum required fields
     const fields: Record<string, unknown> = {
       Name: submission.name,
       Email: submission.email,
     }
 
     const payload = { records: [{ fields }] }
+    console.log("[v0] Parents payload:", JSON.stringify(payload, null, 2))
 
     const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Parents")}`, {
       method: "POST",
@@ -236,38 +236,33 @@ async function createInteractionEvent(
   parentId: string | null
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   try {
-    // Only send fields we know exist - skip select fields to avoid errors
-    // Store all survey data in Metadata field as JSON
+    // Start with empty fields - we'll add them one by one once we know the table works
     const fields: Record<string, unknown> = {}
 
-    // Link to parent if we have one (linked record field - must be array of IDs)
-    if (parentId) {
-      fields.Parent = [parentId]
-    }
+    // Store all submission data as Notes (a common long text field name in Airtable)
+    const notesContent = `
+Survey Submission
+=================
+Name: ${submission.name}
+Email: ${submission.email}
+Phone: ${submission.phone || "N/A"}
+Contact Preference: ${submission.preferredContact}
+School: ${submission.school}
+Grades: ${submission.grades?.join(", ") || "N/A"}
+Time Available: ${submission.timeAvailable}
+Availability: ${submission.availability?.join(", ") || "N/A"}
+Interests: ${submission.interests?.join(", ") || "N/A"}
+Contribution Type: ${submission.contributionType}
+Selected Opportunities: ${submission.selectedOpportunityIds?.join(", ") || "N/A"}
+Submitted: ${new Date().toISOString()}
+Parent ID: ${parentId || "N/A"}
+`.trim()
 
-    // Link to selected opportunities (linked record field)
-    if (submission.selectedOpportunityIds?.length) {
-      fields.Opportunity = submission.selectedOpportunityIds // array of record IDs
-    }
-
-    // Store full survey payload in Metadata as JSON
-    const metadata = {
-      name: submission.name,
-      email: submission.email,
-      phone: submission.phone,
-      preferredContact: submission.preferredContact,
-      school: submission.school,
-      grades: submission.grades,
-      timeAvailable: submission.timeAvailable,
-      availability: submission.availability,
-      interests: submission.interests,
-      contributionType: submission.contributionType,
-      selectedOpportunityIds: submission.selectedOpportunityIds,
-      submittedAt: new Date().toISOString(),
-    }
-    fields.Metadata = JSON.stringify(metadata, null, 2)
+    // Try "Notes" field (common in Airtable)
+    fields.Notes = notesContent
 
     const payload = { records: [{ fields }] }
+    console.log("[v0] Interaction Events - sending to table 'Interaction Events' with fields:", Object.keys(fields))
 
     const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Interaction Events")}`, {
       method: "POST",
