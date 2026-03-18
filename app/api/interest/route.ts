@@ -4,6 +4,7 @@ interface InterestFormData {
   name?: string
   email: string
   school: string
+  role?: string
   isPtoMember: boolean
 }
 
@@ -40,6 +41,7 @@ New BeThere Interest Submission
 Name: ${data.name || "Not provided"}
 Email: ${data.email}
 School: ${data.school}
+Role: ${data.role || "Not provided"}
 PTO Member: ${data.isPtoMember ? "Yes" : "No"}
 Timestamp: ${timestamp}
     `.trim()
