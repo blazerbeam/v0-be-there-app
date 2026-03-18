@@ -34,13 +34,11 @@ export default function AboutPage() {
       <section className="px-6 py-16 md:py-24">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground leading-tight text-balance">
-            Helping more parents show up — in ways that actually work for them
+            Parents want to help — but don&apos;t always know how
           </h1>
-          <div className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto space-y-4">
-            <p>Most schools rely on the same small group of parents to do everything.</p>
-            <p>Most parents want to help — they just don&apos;t know how in a way that fits their life.</p>
-            <p className="text-foreground font-medium">BeThere bridges that gap.</p>
-          </div>
+          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            BeThere matches busy parents with small, realistic ways to help at their child&apos;s school.
+          </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button asChild size="lg" className="px-8 py-6 text-lg rounded-full gap-2">
               <Link href="/">
@@ -56,6 +54,44 @@ export default function AboutPage() {
               }
             />
           </div>
+        </div>
+      </section>
+
+      {/* Quick How It Works */}
+      <section className="px-6 py-12 md:py-16 border-b border-border">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-10 text-center">
+            How it works
+          </h2>
+          <div className="grid sm:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary font-serif text-lg flex items-center justify-center mx-auto mb-4">1</div>
+              <p className="text-foreground font-medium mb-2">Tell us how you&apos;d like to help</p>
+              <p className="text-sm text-muted-foreground">Answer a few quick questions about your time, interests, and availability.</p>
+            </div>
+            <div>
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary font-serif text-lg flex items-center justify-center mx-auto mb-4">2</div>
+              <p className="text-foreground font-medium mb-2">See small, relevant opportunities</p>
+              <p className="text-sm text-muted-foreground">We show you ways to help that match what you shared — no overwhelming lists.</p>
+            </div>
+            <div>
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary font-serif text-lg flex items-center justify-center mx-auto mb-4">3</div>
+              <p className="text-foreground font-medium mb-2">Jump in when it works for you</p>
+              <p className="text-sm text-muted-foreground">Express interest in what feels doable. No pressure, no overcommitting.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PTO Pathway Callout */}
+      <section className="px-6 py-10 bg-card">
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="text-muted-foreground">
+            Are you organizing events or part of a PTO?{" "}
+            <Link href="/pto-leaders" className="text-primary hover:text-primary/80 underline underline-offset-4">
+              See how this works for you
+            </Link>
+          </p>
         </div>
       </section>
 
@@ -109,63 +145,10 @@ export default function AboutPage() {
       <section className="px-6 py-16 md:py-20">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-8">
-            A better way to connect people to how they can help
-          </h2>
-          <p className="text-lg text-muted-foreground mb-4">
-            Instead of asking parents to figure it out themselves…
-          </p>
-          <p className="text-lg text-foreground">
-            What if we showed them where they&apos;re most likely to help — based on their time, interests, and availability?
-          </p>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="px-6 py-16 md:py-20 bg-card">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center">
-            How it works
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-8">
-            <div className="p-6 bg-background rounded-2xl">
-              <div className="text-3xl font-serif text-primary mb-4">1</div>
-              <p className="text-foreground">
-                Parents answer a few simple questions — time, interests, availability, how they want to contribute
-              </p>
-            </div>
-            <div className="p-6 bg-background rounded-2xl">
-              <div className="text-3xl font-serif text-primary mb-4">2</div>
-              <p className="text-foreground">
-                BeThere builds a simple interest profile
-              </p>
-            </div>
-            <div className="p-6 bg-background rounded-2xl">
-              <div className="text-3xl font-serif text-primary mb-4">3</div>
-              <p className="text-foreground">
-                We match them to real opportunities at their school — including smaller, more manageable ways to help
-              </p>
-            </div>
-            <div className="p-6 bg-background rounded-2xl">
-              <div className="text-3xl font-serif text-primary mb-4">4</div>
-              <p className="text-foreground">
-                Parents see options that actually feel doable
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* What Makes This Different Section */}
-      <section className="px-6 py-16 md:py-20">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-8">
             Not another sign-up sheet
           </h2>
-          <p className="text-lg text-muted-foreground mb-6">
-            This isn&apos;t another sign-up sheet.
-          </p>
           <p className="text-muted-foreground mb-2">It&apos;s a shift from:</p>
-          <p className="text-lg text-foreground mb-6">&quot;We need volunteers&quot;</p>
+          <p className="text-lg text-foreground mb-4">&quot;We need volunteers&quot;</p>
           <p className="text-muted-foreground mb-2">to:</p>
           <p className="text-lg text-primary font-medium">&quot;Here&apos;s where you&apos;d be a great fit&quot;</p>
         </div>
