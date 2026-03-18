@@ -117,6 +117,13 @@ const contributionTypeMap: Record<string, string> = {
   both: "Both",
 }
 
+// Contact method mapping (lowercase UI values to Airtable select options)
+const contactMethodMap: Record<string, string> = {
+  email: "Email",
+  phone: "Phone",
+  text: "Text",
+}
+
 export interface SurveySubmission {
   // Contact info
   name: string
@@ -194,7 +201,7 @@ async function createParent(submission: SurveySubmission): Promise<ParentRecord 
       fields["Phone Number"] = submission.phone
     }
     if (submission.preferredContact) {
-      fields["Contact Method Preference"] = submission.preferredContact
+      fields["Contact Method Preference"] = contactMethodMap[submission.preferredContact] || submission.preferredContact
     }
     if (submission.grades?.length) {
       fields["Children Grades"] = submission.grades // multi-select: array of strings
@@ -269,12 +276,7 @@ async function createInteractionEvent(
       fields.Opportunity = submission.selectedOpportunityIds // array of record IDs
     }
 
-    // School as text field
-    if (submission.school) {
-      fields.School = submission.school
-    }
-
-    // Store full survey payload in Metadata as JSON
+    // Store full survey payload in Metadata as JSON (includes school and all other data)
     const metadata = {
       name: submission.name,
       email: submission.email,
