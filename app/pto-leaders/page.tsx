@@ -140,7 +140,7 @@ export default function PTOLeadersPage() {
               </div>
               <div>
                 <h3 className="font-medium text-lg text-foreground mb-2">Break work into smaller tasks</h3>
-                <p className="text-muted-foreground">Use AI-assisted suggestions to turn big roles into manageable pieces with helpful tags for matching.</p>
+                <p className="text-muted-foreground">Get suggestions for tasks like &quot;setup crew,&quot; &quot;ticket table shifts,&quot; and &quot;cleanup&quot; based on your event type.</p>
               </div>
             </div>
             <div className="flex gap-6 items-start">
@@ -165,8 +165,11 @@ export default function PTOLeadersPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-6 bg-card rounded-2xl border border-border">
               <Sparkles className="w-6 h-6 text-primary mb-4" />
-              <h3 className="font-medium text-foreground mb-2">Smart setup</h3>
-              <p className="text-sm text-muted-foreground">AI-assisted breakdown of committees and events into tasks parents can actually take on.</p>
+              <h3 className="font-medium text-foreground mb-2">Smart suggestions</h3>
+              <ul className="text-sm text-muted-foreground space-y-1.5">
+                <li>Suggests tasks like setup crew, ticket shifts, cleanup</li>
+                <li>Recommends tags like fundraising, classroom, or setup</li>
+              </ul>
             </div>
             <div className="p-6 bg-card rounded-2xl border border-border">
               <Zap className="w-6 h-6 text-primary mb-4" />
