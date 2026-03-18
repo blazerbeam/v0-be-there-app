@@ -15,240 +15,207 @@ interface MatchedOpportunity extends Opportunity {
   matchReason: string
 }
 
-// Check if opportunity is grade-specific and matches user's grades
-function checkGradeFit(opportunity: Opportunity, userGrades: string[]): { fits: boolean; score: number } {
-  const titleLower = opportunity.title.toLowerCase()
-  const descLower = opportunity.description.toLowerCase()
-  const combined = `${titleLower} ${descLower}`
-  
-  // Grade patterns to detect
-  const gradePatterns: { pattern: RegExp; grades: string[] }[] = [
-    { pattern: /\bpre-?k\b|\bprek\b/i, grades: ["Pre-K"] },
-    { pattern: /\bkindergarten\b|\b\bk\b(?!\d)/i, grades: ["K"] },
-    { pattern: /\b1st\s*grade\b|\bfirst\s*grade\b/i, grades: ["1st"] },
-    { pattern: /\b2nd\s*grade\b|\bsecond\s*grade\b/i, grades: ["2nd"] },
-    { pattern: /\b3rd\s*grade\b|\bthird\s*grade\b/i, grades: ["3rd"] },
-    { pattern: /\b4th\s*grade\b|\bfourth\s*grade\b/i, grades: ["4th"] },
-    { pattern: /\b5th\s*grade\b|\bfifth\s*grade\b/i, grades: ["5th"] },
-    { pattern: /\b6th\s*grade\b|\bsixth\s*grade\b/i, grades: ["6th"] },
-    { pattern: /\b7th\s*grade\b|\bseventh\s*grade\b/i, grades: ["7th"] },
-    { pattern: /\b8th\s*grade\b|\beighth\s*grade\b/i, grades: ["8th"] },
-    { pattern: /\bhigh\s*school\b/i, grades: ["9th", "10th", "11th", "12th"] },
-    { pattern: /\bmiddle\s*school\b/i, grades: ["6th", "7th", "8th"] },
-    { pattern: /\belementary\b/i, grades: ["Pre-K", "K", "1st", "2nd", "3rd", "4th", "5th"] },
-  ]
-  
-  const detectedGrades: string[] = []
-  for (const { pattern, grades } of gradePatterns) {
-    if (pattern.test(combined)) {
-      detectedGrades.push(...grades)
+// Normalize strings for comparison (case insensitive, trimmed)
+function normalize(str: string): string {
+  return (str || "").toLowerCase().trim()
+}
+
+// Check if two arrays have any overlap (case insensitive)
+function hasOverlap(arr1: string[], arr2: string[]): boolean {
+  const normalized1 = arr1.map(normalize)
+  const normalized2 = arr2.map(normalize)
+  return normalized1.some(item => normalized2.includes(item))
+}
+
+// Get overlapping items between two arrays
+function getOverlap(arr1: string[], arr2: string[]): string[] {
+  const normalized2 = arr2.map(normalize)
+  return arr1.filter(item => normalized2.includes(normalize(item)))
+}
+
+// ===================
+// HARD FILTERS
+// ===================
+
+function passesHardFilters(opp: Opportunity, preferences: UserPreferences): boolean {
+  // 1. Must be active
+  if (!opp.active) {
+    return false
+  }
+
+  // 2. Grade relevance check
+  // If Grade Relevance is empty, treat as general opportunity (allow it)
+  // If Grade Relevance has values, must overlap with user's grades
+  if (opp.gradeRelevance.length > 0 && preferences.grades.length > 0) {
+    if (!hasOverlap(opp.gradeRelevance, preferences.grades)) {
+      return false
     }
   }
-  
-  // If no grade specificity detected, assume it fits all
-  if (detectedGrades.length === 0) {
-    return { fits: true, score: 1 }
-  }
-  
-  // Check if any user grades overlap
-  const overlap = userGrades.some(grade => detectedGrades.includes(grade))
-  return { fits: overlap, score: overlap ? 2 : 0 }
+
+  return true
 }
 
-// Check if opportunity is school-specific and matches user's school
-function checkSchoolFit(opportunity: Opportunity, userSchool: string): { fits: boolean; score: number } {
-  const titleLower = opportunity.title.toLowerCase()
-  const descLower = opportunity.description.toLowerCase()
-  const combined = `${titleLower} ${descLower}`
-  const userSchoolLower = userSchool.toLowerCase()
-  
-  // Known schools to check against
-  const knownSchools = ["forest hills", "oak creek", "lake grove", "loms", "lohs"]
-  
-  // Check if opportunity mentions a specific school
-  const mentionedSchools = knownSchools.filter(school => combined.includes(school))
-  
-  // If no specific school mentioned, fits all
-  if (mentionedSchools.length === 0) {
-    return { fits: true, score: 1 }
-  }
-  
-  // If user's school is mentioned, great fit
-  if (mentionedSchools.some(school => userSchoolLower.includes(school))) {
-    return { fits: true, score: 3 }
-  }
-  
-  // If another school is mentioned, doesn't fit
-  return { fits: false, score: 0 }
+// ===================
+// SOFT SCORING
+// ===================
+
+interface ScoreResult {
+  score: number
+  reason?: string
 }
 
-// Check interest overlap
-function checkInterestFit(opportunity: Opportunity, userInterests: string[]): { score: number; reason?: string } {
-  const skillTags = opportunity.skillTags || []
-  const category = opportunity.category || ""
-  
-  // Map user interests to potential skill tags
-  const interestToTags: Record<string, string[]> = {
-    "Arts & Crafts": ["art", "craft", "creative", "design"],
-    "Sports & Fitness": ["sport", "fitness", "athletic", "physical"],
-    "Reading & Literacy": ["reading", "literacy", "library", "book"],
-    "STEM & Tech": ["stem", "tech", "science", "math", "computer"],
-    "Outdoor Activities": ["outdoor", "garden", "nature", "field"],
-    "Event Planning": ["event", "planning", "coordination", "organize"],
-    "Food & Hospitality": ["food", "hospitality", "snack", "kitchen", "cook"],
-    "Photography": ["photo", "camera", "media"],
-    "Music": ["music", "band", "choir", "instrument"],
-    "Fundraising": ["fundrais", "donation", "money"],
-    "Administrative": ["admin", "office", "clerical", "data"],
-    "Mentoring": ["mentor", "tutor", "teach", "guide"],
-  }
-  
+// Map user interests to potential tag matches
+const interestToTagKeywords: Record<string, string[]> = {
+  "Arts & Crafts": ["art", "craft", "creative", "design", "visual"],
+  "Sports & Fitness": ["sport", "fitness", "athletic", "physical", "pe", "recess"],
+  "Reading & Literacy": ["reading", "literacy", "library", "book", "writing"],
+  "STEM & Tech": ["stem", "tech", "science", "math", "computer", "coding"],
+  "Outdoor Activities": ["outdoor", "garden", "nature", "field", "playground"],
+  "Event Planning": ["event", "planning", "coordination", "organize", "party"],
+  "Food & Hospitality": ["food", "hospitality", "snack", "kitchen", "cook", "lunch"],
+  "Photography": ["photo", "camera", "media", "video"],
+  "Music": ["music", "band", "choir", "instrument", "concert"],
+  "Fundraising": ["fundrais", "donation", "sponsor", "auction"],
+  "Administrative": ["admin", "office", "clerical", "data", "paperwork"],
+  "Mentoring": ["mentor", "tutor", "teach", "guide", "coach"],
+}
+
+// Score tag match
+function scoreTagMatch(opp: Opportunity, userInterests: string[]): ScoreResult {
+  const oppTags = opp.tags.map(normalize)
   let score = 0
   let matchedInterest = ""
-  
-  const combinedText = [...skillTags, category, opportunity.title, opportunity.description]
-    .join(" ")
-    .toLowerCase()
-  
+
   for (const interest of userInterests) {
-    const keywords = interestToTags[interest] || [interest.toLowerCase()]
-    if (keywords.some(kw => combinedText.includes(kw))) {
-      score += 2
+    const interestLower = normalize(interest)
+    const keywords = interestToTagKeywords[interest] || [interestLower]
+    
+    // Check if any opportunity tag matches any keyword
+    const tagMatch = oppTags.some(tag => 
+      keywords.some(kw => tag.includes(kw) || kw.includes(tag))
+    )
+    
+    if (tagMatch) {
+      score += 3
       if (!matchedInterest) matchedInterest = interest
     }
   }
-  
-  return { score, reason: matchedInterest ? `Matches your interest in ${matchedInterest}` : undefined }
+
+  return {
+    score,
+    reason: matchedInterest ? `Matches your interest in ${matchedInterest}` : undefined,
+  }
 }
 
-// Check availability/time fit
-function checkTimeFit(
-  opportunity: Opportunity, 
-  userTimeAvailable: string, 
-  userAvailability: string[]
-): { score: number; reason?: string } {
-  const timeCommitment = opportunity.timeCommitment.toLowerCase()
-  const availabilityTags = opportunity.availabilityTags || []
-  
-  let score = 0
-  let reason: string | undefined
-  
-  // Time commitment scoring
-  if (userTimeAvailable === "minimal") {
-    // Prefer short commitments
-    if (timeCommitment.includes("one-time") || timeCommitment.includes("hour") || timeCommitment.includes("30 min")) {
-      score += 2
-      reason = "Quick commitment"
-    }
-  } else if (userTimeAvailable === "moderate") {
-    if (timeCommitment.includes("2-4") || timeCommitment.includes("month")) {
-      score += 2
-      reason = "Works with your schedule"
-    }
-  } else if (userTimeAvailable === "regular") {
-    if (timeCommitment.includes("week") || timeCommitment.includes("5+") || timeCommitment.includes("regular")) {
-      score += 2
-      reason = "Great for your availability"
-    }
-  }
-  
-  // Availability window scoring
-  const availabilityMap: Record<string, string[]> = {
-    "weekday-morning": ["morning", "am", "weekday"],
-    "weekday-afternoon": ["afternoon", "pm", "after school", "weekday"],
-    "weekday-evening": ["evening", "night", "weekday"],
-    "weekend": ["weekend", "saturday", "sunday"],
-    "flexible": ["flexible", "varies", "any time"],
-  }
-  
-  for (const userAvail of userAvailability) {
-    const keywords = availabilityMap[userAvail] || []
-    const availText = availabilityTags.join(" ").toLowerCase()
-    if (keywords.some(kw => availText.includes(kw))) {
-      score += 1
-      if (!reason) reason = "Fits your schedule"
-    }
-  }
-  
-  return { score, reason }
+// Map user timeAvailable to Airtable Time Commitment values
+const timeCommitmentMatches: Record<string, string[]> = {
+  minimal: ["one-time", "1 hour", "30 min", "quick", "single"],
+  moderate: ["2-4", "monthly", "occasional", "few hours"],
+  regular: ["weekly", "ongoing", "regular", "5+", "committed"],
 }
 
-// Check contribution type fit
-function checkContributionFit(opportunity: Opportunity, userContributionType: string): { score: number } {
-  const combined = `${opportunity.title} ${opportunity.description}`.toLowerCase()
+// Score time commitment match
+function scoreTimeMatch(opp: Opportunity, userTimeAvailable: string): ScoreResult {
+  const oppTime = normalize(opp.timeCommitment)
+  const matchKeywords = timeCommitmentMatches[userTimeAvailable] || []
   
-  // Detect if opportunity is donation-focused
-  const isDonation = combined.includes("donat") || combined.includes("sponsor") || combined.includes("fund")
-  const isVolunteer = !isDonation || combined.includes("volunteer") || combined.includes("help")
+  const matches = matchKeywords.some(kw => oppTime.includes(kw))
   
-  if (userContributionType === "donate" && isDonation) {
-    return { score: 2 }
-  } else if (userContributionType === "volunteer" && isVolunteer && !isDonation) {
-    return { score: 2 }
-  } else if (userContributionType === "both") {
-    return { score: 1 }
+  if (matches) {
+    return {
+      score: 2,
+      reason: userTimeAvailable === "minimal" ? "Quick commitment" : "Works with your schedule",
+    }
   }
-  
+
   return { score: 0 }
 }
 
-// Determine best match reason
-function getBestMatchReason(
-  interestReason?: string,
-  timeReason?: string,
-  scores: { interest: number; time: number; grade: number; school: number }
-): string {
-  // Priority: specific match reasons first
-  if (interestReason && scores.interest >= 2) return interestReason
-  if (timeReason && scores.time >= 2) return timeReason
-  if (scores.school >= 3) return "Perfect for your school"
-  if (scores.grade >= 2) return "Great for your kids' grade level"
-  if (scores.time >= 1) return "Fits your schedule"
-  return "Good match for you"
+// Map user availability to Airtable Timing Window values
+const availabilityMatches: Record<string, string[]> = {
+  "weekday-morning": ["morning", "am", "before school", "drop-off"],
+  "weekday-afternoon": ["afternoon", "pm", "after school", "pickup"],
+  "weekday-evening": ["evening", "night"],
+  "weekend": ["weekend", "saturday", "sunday"],
+  "flexible": ["flexible", "varies", "any", "remote", "from home"],
 }
+
+// Score availability/timing match
+function scoreAvailabilityMatch(opp: Opportunity, userAvailability: string[]): ScoreResult {
+  const oppTiming = normalize(opp.timingWindow)
+  
+  // If opportunity has no timing window, neutral
+  if (!oppTiming) {
+    return { score: 0 }
+  }
+
+  for (const avail of userAvailability) {
+    const matchKeywords = availabilityMatches[avail] || []
+    const matches = matchKeywords.some(kw => oppTiming.includes(kw))
+    
+    if (matches) {
+      return {
+        score: 2,
+        reason: "Fits your schedule",
+      }
+    }
+  }
+
+  return { score: 0 }
+}
+
+// ===================
+// MATCH REASON GENERATION
+// ===================
+
+function generateMatchReason(
+  tagResult: ScoreResult,
+  timeResult: ScoreResult,
+  availResult: ScoreResult,
+  opp: Opportunity
+): string {
+  // Priority: specific reasons first
+  if (tagResult.reason && tagResult.score >= 3) return tagResult.reason
+  if (availResult.reason && availResult.score >= 2) return availResult.reason
+  if (timeResult.reason && timeResult.score >= 2) return timeResult.reason
+  
+  // Fallback reasons based on opportunity characteristics
+  if (normalize(opp.timeCommitment).includes("one-time")) return "Quick win"
+  if (opp.gradeRelevance.length > 0) return "Great for your kids"
+  
+  return "Good fit for you"
+}
+
+// ===================
+// MAIN MATCHING LOGIC
+// ===================
 
 export async function POST(request: Request) {
   try {
     const preferences: UserPreferences = await request.json()
     
-    // Fetch all opportunities
+    // Fetch all opportunities from Airtable
     const allOpportunities = await fetchOpportunities()
     
-    // Score and filter opportunities
+    // Apply hard filters and score remaining
     const matchedOpportunities: MatchedOpportunity[] = []
     
     for (const opp of allOpportunities) {
-      // Check hard filters first
-      const schoolFit = checkSchoolFit(opp, preferences.school)
-      if (!schoolFit.fits) continue
-      
-      const gradeFit = checkGradeFit(opp, preferences.grades)
-      if (!gradeFit.fits) continue
+      // Hard filters - skip if doesn't pass
+      if (!passesHardFilters(opp, preferences)) {
+        continue
+      }
       
       // Soft scoring
-      const interestFit = checkInterestFit(opp, preferences.interests)
-      const timeFit = checkTimeFit(opp, preferences.timeAvailable, preferences.availability)
-      const contributionFit = checkContributionFit(opp, preferences.contributionType)
+      const tagResult = scoreTagMatch(opp, preferences.interests)
+      const timeResult = scoreTimeMatch(opp, preferences.timeAvailable)
+      const availResult = scoreAvailabilityMatch(opp, preferences.availability)
       
       // Calculate total score
-      const totalScore = 
-        schoolFit.score + 
-        gradeFit.score + 
-        interestFit.score + 
-        timeFit.score + 
-        contributionFit.score
+      const totalScore = tagResult.score + timeResult.score + availResult.score
       
-      // Determine match reason
-      const matchReason = getBestMatchReason(
-        interestFit.reason,
-        timeFit.reason,
-        {
-          interest: interestFit.score,
-          time: timeFit.score,
-          grade: gradeFit.score,
-          school: schoolFit.score,
-        }
-      )
+      // Generate match reason
+      const matchReason = generateMatchReason(tagResult, timeResult, availResult, opp)
       
       matchedOpportunities.push({
         ...opp,
@@ -260,11 +227,33 @@ export async function POST(request: Request) {
     // Sort by score (highest first)
     matchedOpportunities.sort((a, b) => b.matchScore - a.matchScore)
     
-    // Return top matches (max 6)
-    const topMatches = matchedOpportunities.slice(0, 6)
+    // Determine if we have strong matches (score >= 3)
+    const hasStrongMatches = matchedOpportunities.some(m => m.matchScore >= 3)
     
-    // Determine if we have strong matches
-    const hasStrongMatches = topMatches.some(m => m.matchScore >= 4)
+    // Return top 3-5 matches
+    const maxResults = hasStrongMatches ? 5 : 4
+    const topMatches = matchedOpportunities.slice(0, maxResults)
+    
+    // If no matches at all, return fallback with soft message
+    if (topMatches.length === 0) {
+      // Get general opportunities (no grade restrictions, active)
+      const generalOpps = allOpportunities
+        .filter(opp => opp.active && opp.gradeRelevance.length === 0)
+        .slice(0, 3)
+        .map(opp => ({
+          ...opp,
+          matchScore: 0,
+          matchReason: "Open to all families",
+        }))
+      
+      return NextResponse.json({
+        opportunities: generalOpps,
+        hasStrongMatches: false,
+        totalAvailable: allOpportunities.length,
+        matchedCount: 0,
+        message: "We're still finding the best fits for you, but here are a few ways you could help.",
+      })
+    }
     
     return NextResponse.json({
       opportunities: topMatches,
@@ -273,7 +262,7 @@ export async function POST(request: Request) {
       matchedCount: matchedOpportunities.length,
     })
   } catch (error) {
-    console.error("Matching error:", error)
+    console.error("[Matching] Error:", error)
     return NextResponse.json(
       { error: "Failed to find matches" },
       { status: 500 }

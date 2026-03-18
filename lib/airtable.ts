@@ -27,8 +27,12 @@ export interface Opportunity {
   committee: string
   category: string
   timeCommitment: string
+  timingWindow: string
   skillTags: string[]
   availabilityTags: string[]
+  gradeRelevance: string[]
+  tags: string[]
+  active: boolean
 }
 
 function getField(fields: Record<string, unknown>, ...keys: string[]) {
@@ -62,8 +66,12 @@ function normalizeOpportunity(record: AirtableRecord<Record<string, unknown>>): 
   const description = getField(fields, "description", "Description", "details", "Details")
   const committee = getField(fields, "committee", "Committee", "category", "Category")
   const timeCommitment = getField(fields, "time_commitment", "Time Commitment", "timeCommitment")
+  const timingWindow = getField(fields, "timing_window", "Timing Window", "timingWindow")
   const skillTags = getField(fields, "skill_tags", "Skill Tags", "skills", "Skills")
   const availabilityTags = getField(fields, "availability_tags", "Availability Tags", "availability", "Availability")
+  const gradeRelevance = getField(fields, "grade_relevance", "Grade Relevance", "gradeRelevance", "Grades")
+  const tags = getField(fields, "tags", "Tags")
+  const active = getField(fields, "active", "Active")
 
   return {
     id: record.id,
@@ -72,8 +80,12 @@ function normalizeOpportunity(record: AirtableRecord<Record<string, unknown>>): 
     committee: toStringValue(committee, "General"),
     category: toStringValue(committee, "General"),
     timeCommitment: toStringValue(timeCommitment, "Varies"),
+    timingWindow: toStringValue(timingWindow, ""),
     skillTags: toArray(skillTags),
     availabilityTags: toArray(availabilityTags),
+    gradeRelevance: toArray(gradeRelevance),
+    tags: toArray(tags),
+    active: active === true || active === "true" || active === 1,
   }
 }
 
