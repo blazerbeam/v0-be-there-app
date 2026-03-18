@@ -30,6 +30,7 @@ export function InterestForm({ trigger }: InterestFormProps) {
     name: "",
     email: "",
     school: "",
+    role: "",
     isPtoMember: false,
   })
 
@@ -43,6 +44,7 @@ export function InterestForm({ trigger }: InterestFormProps) {
       name: "",
       email: "",
       school: "",
+      role: "",
       isPtoMember: false,
     })
     setFormState("form")
@@ -178,6 +180,20 @@ export function InterestForm({ trigger }: InterestFormProps) {
                   required
                   value={formData.school}
                   onChange={(e) => handleInputChange("school", e.target.value)}
+                  className="mt-1.5 h-11 rounded-xl bg-card border-border"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="role" className="text-foreground">
+                  Role <span className="text-muted-foreground">(optional)</span>
+                </Label>
+                <Input
+                  id="role"
+                  type="text"
+                  placeholder="e.g., PTO President, Event Chair, Parent"
+                  value={formData.role}
+                  onChange={(e) => handleInputChange("role", e.target.value)}
                   className="mt-1.5 h-11 rounded-xl bg-card border-border"
                 />
               </div>

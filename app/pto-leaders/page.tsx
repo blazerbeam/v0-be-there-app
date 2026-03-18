@@ -53,6 +53,7 @@ export default function PTOLeadersPage() {
           
           {/* CTA below mock */}
           <div className="mt-10 text-center">
+            <p className="text-muted-foreground mb-4">Want to try this with your PTO?</p>
             <InterestForm
               trigger={
                 <Button size="lg" className="px-8 py-6 text-lg rounded-full gap-2">
@@ -264,13 +265,13 @@ export default function PTOLeadersPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="px-6 py-16 md:py-24 bg-card">
+      <section className="px-6 py-16 md:py-24">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-foreground mb-6 text-balance">
-            Ready to get more parents involved?
+          <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-foreground mb-4 text-balance">
+            Want to try this with your PTO?
           </h2>
-          <p className="text-lg text-muted-foreground mb-10">
-            Request early access and we&apos;ll be in touch to set up your school.
+          <p className="text-muted-foreground mb-8">
+            We&apos;ll help you get set up and start matching parents to opportunities.
           </p>
           <InterestForm
             trigger={
