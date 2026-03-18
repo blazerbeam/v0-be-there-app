@@ -65,28 +65,54 @@ export default function PTOLeadersPage() {
         </div>
       </section>
 
-      {/* Problem Section */}
+      {/* Before vs After Comparison Section */}
       <section className="px-6 py-16 md:py-20 bg-card">
         <div className="max-w-4xl mx-auto">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-10 text-center">
-            Sound familiar?
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-6">
-            <div className="p-6 bg-background rounded-2xl border border-border">
-              <Users className="w-6 h-6 text-muted-foreground mb-3" />
-              <p className="text-foreground">The same parents do most of the work</p>
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+            {/* Today */}
+            <div className="p-6 md:p-8 bg-background rounded-2xl border border-border">
+              <h3 className="font-serif text-xl text-muted-foreground mb-6">Today</h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">Same parents do most of the work</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">Roles feel too big</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">Hard to know who can help</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">Last-minute scrambling before events</span>
+                </li>
+              </ul>
             </div>
-            <div className="p-6 bg-background rounded-2xl border border-border">
-              <AlertCircle className="w-6 h-6 text-muted-foreground mb-3" />
-              <p className="text-foreground">Hard to know who can actually help</p>
-            </div>
-            <div className="p-6 bg-background rounded-2xl border border-border">
-              <ClipboardList className="w-6 h-6 text-muted-foreground mb-3" />
-              <p className="text-foreground">Roles feel too big for busy parents</p>
-            </div>
-            <div className="p-6 bg-background rounded-2xl border border-border">
-              <Calendar className="w-6 h-6 text-muted-foreground mb-3" />
-              <p className="text-foreground">Last-minute scrambling before events</p>
+            
+            {/* With BeThere */}
+            <div className="p-6 md:p-8 bg-primary/5 rounded-2xl border border-primary/20">
+              <h3 className="font-serif text-xl text-primary mb-6">With BeThere</h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">More parents involved in small ways</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Tasks broken into manageable chunks</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Clear visibility into who can help</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Gaps identified early</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
