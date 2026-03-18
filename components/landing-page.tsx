@@ -41,6 +41,10 @@ export function LandingPage({ onStart }: LandingPageProps) {
             Answer a few quick questions and we&apos;ll show you ways to help that match your time and interests.
           </p>
 
+          <p className="mt-3 text-sm text-muted-foreground/70">
+            Help set up an event, run a 1-hour station, or pitch in behind the scenes.
+          </p>
+
           <Button 
             onClick={onStart}
             size="lg"
