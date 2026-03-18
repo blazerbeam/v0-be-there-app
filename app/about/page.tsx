@@ -195,7 +195,7 @@ export default function AboutPage() {
             
             <div className="mt-8 pt-6 border-t border-border text-xs text-muted-foreground/70 space-y-1">
               <p>
-                <a href="mailto:jeremy@bethere.community" className="hover:text-muted-foreground transition-colors">
+                <a href="mailto:hello@bethere.community" className="hover:text-muted-foreground transition-colors">
                   jeremy@bethere.community
                 </a>
               </p>
