@@ -24,6 +24,9 @@ export default function AboutPage() {
           <Link href="/about" className="text-sm font-medium text-foreground">
             About
           </Link>
+          <Link href="/pto-leaders" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            For PTO Leaders
+          </Link>
         </nav>
       </header>
 
