@@ -1,4 +1,4 @@
-import { Heart, ArrowRight } from "lucide-react"
+import { Heart, ArrowRight, Users, Sparkles, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { InterestForm } from "@/components/interest-form"
@@ -7,7 +7,7 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "About - BeThere",
-  description: "Built for parents who want to help — but need flexible, realistic ways to do it",
+  description: "Making it easier for parents to show up — in ways that actually fit real life.",
 }
 
 export default function AboutPage() {
@@ -15,6 +15,7 @@ export default function AboutPage() {
     <div className="min-h-screen flex flex-col bg-background">
       {/* Analytics: Track about page view */}
       <AboutPageTracker />
+      
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between border-b border-border">
         <Link href="/" className="flex items-center gap-2">
@@ -33,80 +34,75 @@ export default function AboutPage() {
         </nav>
       </header>
 
-      {/* Section 1: Intro / Audience */}
-      <section className="px-6 py-16 md:py-20">
+      {/* Hero Section */}
+      <section className="px-6 py-20 md:py-28 bg-card">
         <div className="max-w-2xl mx-auto text-center">
-          <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground leading-tight text-balance">
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground leading-tight text-balance">
             About BeThere
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground">
-            Built for parents who want to help — but need flexible, realistic ways to do it.
+          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-xl mx-auto">
+            Making it easier for parents to show up — in ways that actually fit real life.
           </p>
         </div>
       </section>
 
-      {/* Section 2: The Problem */}
-      <section className="px-6 py-16 md:py-20 bg-card">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-8">
-            The problem
-          </h2>
-          <div className="space-y-5 text-muted-foreground">
-            <p>
-              At most schools, the same small group of parents ends up doing most of the work.
+      {/* Callout Statement */}
+      <section className="px-6 py-14 md:py-16">
+        <div className="max-w-3xl mx-auto">
+          <blockquote className="text-center">
+            <p className="text-xl md:text-2xl text-foreground font-serif leading-relaxed text-balance">
+              &ldquo;A small group of parents carry most of the load — while many others want to help, but don&apos;t have a clear way to do it.&rdquo;
             </p>
-            <p>
-              Meanwhile, many other parents want to help — but don&apos;t have a clear or manageable way to do it.
-            </p>
-            <ul className="space-y-2 pl-5">
-              <li className="list-disc">Roles feel too big to take on</li>
-              <li className="list-disc">It&apos;s hard to know what&apos;s actually needed</li>
-              <li className="list-disc">Opportunities don&apos;t match real schedules</li>
-            </ul>
-            <p className="pt-2 text-foreground">
-              BeThere makes it easier for more parents to show up — in small, realistic ways that fit their lives.
-            </p>
-          </div>
+          </blockquote>
         </div>
       </section>
 
-      {/* Section 3: How It Works */}
-      <section className="px-6 py-16 md:py-20">
+      {/* How It Works - Visual Cards */}
+      <section className="px-6 py-16 md:py-20 bg-card">
         <div className="max-w-4xl mx-auto">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-10 text-center">
+          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center">
             How it works
           </h2>
           <div className="grid sm:grid-cols-3 gap-6">
-            <div className="p-6 bg-card rounded-2xl border border-border text-center">
-              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary font-serif text-lg flex items-center justify-center mx-auto mb-4">
-                1
+            <div className="p-6 bg-background rounded-2xl border border-border text-center">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Users className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-foreground font-medium">
+              <h3 className="text-foreground font-medium mb-2">
                 Tell us how you&apos;d like to help
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Share your interests and availability
               </p>
             </div>
-            <div className="p-6 bg-card rounded-2xl border border-border text-center">
-              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary font-serif text-lg flex items-center justify-center mx-auto mb-4">
-                2
+            <div className="p-6 bg-background rounded-2xl border border-border text-center">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-foreground font-medium">
+              <h3 className="text-foreground font-medium mb-2">
                 See small, relevant opportunities
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Get matched to tasks that fit
               </p>
             </div>
-            <div className="p-6 bg-card rounded-2xl border border-border text-center">
-              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary font-serif text-lg flex items-center justify-center mx-auto mb-4">
-                3
+            <div className="p-6 bg-background rounded-2xl border border-border text-center">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-foreground font-medium">
+              <h3 className="text-foreground font-medium mb-2">
                 Jump in when it works for you
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Contribute on your schedule
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section 4: The Goal */}
-      <section className="px-6 py-16 md:py-20 bg-card">
+      {/* The Goal */}
+      <section className="px-6 py-16 md:py-20">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-6">
             The goal
@@ -120,8 +116,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Section 5: PTO Link */}
-      <section className="px-6 py-12 md:py-16">
+      {/* PTO Link Card */}
+      <section className="px-6 py-12 md:py-16 bg-card">
         <div className="max-w-xl mx-auto">
           <div className="p-6 md:p-8 bg-primary/5 rounded-2xl border border-primary/20 text-center">
             <p className="text-foreground font-medium mb-3">
@@ -165,20 +161,23 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Section: Who's behind BeThere */}
-      <section className="px-6 py-12 md:py-16 border-t border-border">
-        <div className="max-w-xl mx-auto">
-          <h2 className="font-serif text-xl md:text-2xl text-foreground mb-8 text-center">
+      {/* Who's behind BeThere */}
+      <section className="px-6 py-14 md:py-18 border-t border-border bg-card/50">
+        <div className="max-w-lg mx-auto">
+          <h2 className="font-serif text-lg md:text-xl text-foreground mb-8 text-center">
             Who&apos;s behind BeThere
           </h2>
           
           <div className="text-center">
-            <h3 className="text-lg font-medium text-foreground">Jeremy Myrland</h3>
-            <p className="text-sm text-muted-foreground mt-1">Founder</p>
+            <h3 className="text-base font-medium text-foreground">Jeremy Myrland</h3>
+            <p className="text-xs text-muted-foreground mt-1">Founder</p>
             
-            <div className="mt-6 space-y-4 text-sm text-muted-foreground text-left">
+            <div className="mt-8 space-y-5 text-sm text-muted-foreground text-left leading-relaxed">
               <p>
-                I&apos;m a parent of twin boys in elementary school and currently serve as Vice President of the PTO at my kids&apos; school.
+                I live in Lake Oswego, Oregon and am the dad of twin 4th graders. I currently serve as Vice President of the PTO at their elementary school and am also a board member with the Lake Oswego Schools Foundation.
+              </p>
+              <p>
+                My wife is a 6th grade science teacher, so education is a part of our daily life — both at home and in the community.
               </p>
               <p>
                 Like a lot of parents, I&apos;m balancing work, coaching, and trying to stay involved where I can.
@@ -194,7 +193,7 @@ export default function AboutPage() {
               </p>
             </div>
             
-            <div className="mt-6 text-xs text-muted-foreground/70 space-y-1">
+            <div className="mt-8 pt-6 border-t border-border text-xs text-muted-foreground/70 space-y-1">
               <p>
                 <a href="mailto:jeremy@bethere.community" className="hover:text-muted-foreground transition-colors">
                   jeremy@bethere.community
