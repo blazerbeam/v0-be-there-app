@@ -32,7 +32,7 @@ export default function PTOLeadersPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="px-6 py-16 md:py-24">
+      <section className="px-6 pt-16 md:pt-24 pb-10">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground leading-tight text-balance">
             Run PTO events without chasing volunteers
@@ -40,7 +40,19 @@ export default function PTOLeadersPage() {
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             Turn committees and events into small, realistic ways parents can actually help.
           </p>
-          <div className="mt-10">
+        </div>
+      </section>
+
+      {/* PTO Command View Mock - Moved up for visual impact */}
+      <section className="px-6 py-10 md:py-14">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto">
+            See everything in one place — committees, events, volunteers, and gaps.
+          </p>
+          <PTOCommandView />
+          
+          {/* CTA below mock */}
+          <div className="mt-10 text-center">
             <InterestForm
               trigger={
                 <Button size="lg" className="px-8 py-6 text-lg rounded-full gap-2">
@@ -115,19 +127,6 @@ export default function PTOLeadersPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* PTO Command View Mock */}
-      <section className="px-6 py-16 md:py-20 bg-card">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-4 text-center">
-            Your PTO command center
-          </h2>
-          <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Manage committees, events, and volunteers in one place. See who&apos;s helping and where you need more support.
-          </p>
-          <PTOCommandView />
         </div>
       </section>
 
