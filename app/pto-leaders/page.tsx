@@ -145,11 +145,16 @@ export default function PTOLeadersPage() {
       </section>
 
       {/* PTO Command View Mock */}
-      <section className="px-6 py-10 md:py-14">
+      <section className="px-6 py-16 md:py-20">
         <div className="max-w-6xl mx-auto">
-          <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto">
-            See everything in one place — committees, events, volunteers, and gaps.
-          </p>
+          <div className="text-center mb-8">
+            <h2 className="font-serif text-2xl md:text-3xl text-foreground">
+              Example PTO Command View
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              See committees, events, volunteers, and gaps in one place.
+            </p>
+          </div>
           <PTOCommandView />
           
           {/* CTA below mock */}
