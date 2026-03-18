@@ -80,7 +80,7 @@ function normalizeOpportunity(record: AirtableRecord<Record<string, unknown>>): 
 }
 
 // ===================
-// Survey Response Types and Helpers
+// Survey Submission Types and Helpers
 // ===================
 
 // Mapping from UI values to Airtable values
@@ -136,69 +136,146 @@ export interface SurveySubmission {
   selectedOpportunityIds: string[]
 }
 
-interface AirtableSurveyFields {
-  Name: string
-  Email: string
-  Phone?: string
-  "Preferred Contact": string
-  School: string
-  Grades: string[]
-  "Time Commitment": string
-  Availability: string[]
-  Interests: string[]
-  "Contribution Type": string
-  Opportunities: string[]
+// ===================
+// Parents Table Helpers
+// ===================
+
+interface ParentRecord {
+  id: string
+  email: string
+  name: string
 }
 
-function mapSurveyToAirtable(submission: SurveySubmission): AirtableSurveyFields {
-  return {
-    Name: submission.name,
-    Email: submission.email,
-    Phone: submission.phone || undefined,
-    "Preferred Contact": submission.preferredContact,
-    School: submission.school,
-    Grades: submission.grades,
-    "Time Commitment": timeCommitmentMap[submission.timeAvailable] || submission.timeAvailable,
-    Availability: submission.availability.map((a) => availabilityMap[a] || a),
-    Interests: submission.interests.map((i) => interestsMap[i] || i),
-    "Contribution Type": contributionTypeMap[submission.contributionType] || submission.contributionType,
-    Opportunities: submission.selectedOpportunityIds,
-  }
-}
-
-export async function createSurveyResponse(
-  submission: SurveySubmission
-): Promise<{ success: boolean; id?: string; error?: string }> {
-  if (!AIRTABLE_TOKEN || !AIRTABLE_BASE_ID) {
-    return { success: false, error: "Airtable credentials not configured" }
-  }
-
-  if (!submission.email) {
-    return { success: false, error: "Email is required" }
-  }
-
+async function findParentByEmail(email: string): Promise<ParentRecord | null> {
   try {
-    const fields = mapSurveyToAirtable(submission)
-    
-    // Remove undefined fields
-    const cleanFields = Object.fromEntries(
-      Object.entries(fields).filter(([, v]) => v !== undefined)
-    )
+    const url = new URL(`${AIRTABLE_API_URL}/${encodeURIComponent("Parents")}`)
+    url.searchParams.set("filterByFormula", `{Email} = "${email}"`)
+    url.searchParams.set("maxRecords", "1")
 
-    const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Survey Responses")}`, {
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      console.error("[Airtable] Find parent error:", await response.text())
+      return null
+    }
+
+    const data = await response.json()
+    const record = data.records?.[0]
+    
+    if (!record) return null
+    
+    return {
+      id: record.id,
+      email: record.fields.Email || email,
+      name: record.fields.Name || "",
+    }
+  } catch (err) {
+    console.error("[Airtable] Find parent exception:", err)
+    return null
+  }
+}
+
+async function createParent(submission: SurveySubmission): Promise<ParentRecord | null> {
+  try {
+    const fields: Record<string, unknown> = {
+      Name: submission.name,
+      Email: submission.email,
+    }
+    
+    // Add optional fields if they exist
+    if (submission.phone) fields.Phone = submission.phone
+    if (submission.preferredContact) fields["Preferred Contact"] = submission.preferredContact
+    if (submission.school) fields.School = submission.school
+    if (submission.grades?.length) fields.Grades = submission.grades
+
+    const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Parents")}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${AIRTABLE_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        records: [{ fields: cleanFields }],
+        records: [{ fields }],
+      }),
+    })
+
+    if (!response.ok) {
+      console.error("[Airtable] Create parent error:", await response.text())
+      return null
+    }
+
+    const data = await response.json()
+    const record = data.records?.[0]
+    
+    if (!record) return null
+    
+    return {
+      id: record.id,
+      email: submission.email,
+      name: submission.name,
+    }
+  } catch (err) {
+    console.error("[Airtable] Create parent exception:", err)
+    return null
+  }
+}
+
+// ===================
+// Interaction Events Table Helpers
+// ===================
+
+async function createInteractionEvent(
+  submission: SurveySubmission,
+  parentId: string | null
+): Promise<{ success: boolean; id?: string; error?: string }> {
+  try {
+    const fields: Record<string, unknown> = {
+      "Event Type": "Survey Submission",
+      // Store parent info directly if no linked parent
+      "Parent Name": submission.name,
+      "Parent Email": submission.email,
+      // Map survey preferences
+      "Time Commitment": timeCommitmentMap[submission.timeAvailable] || submission.timeAvailable,
+      Availability: submission.availability.map((a) => availabilityMap[a] || a),
+      Interests: submission.interests.map((i) => interestsMap[i] || i),
+      "Contribution Type": contributionTypeMap[submission.contributionType] || submission.contributionType,
+    }
+
+    // Link to parent if we have one
+    if (parentId) {
+      fields.Parent = [parentId]
+    }
+
+    // Link to selected opportunities
+    if (submission.selectedOpportunityIds?.length) {
+      fields.Opportunities = submission.selectedOpportunityIds
+    }
+
+    // Add optional fields
+    if (submission.phone) fields["Parent Phone"] = submission.phone
+    if (submission.preferredContact) fields["Preferred Contact"] = submission.preferredContact
+    if (submission.school) fields.School = submission.school
+    if (submission.grades?.length) fields.Grades = submission.grades
+
+    const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Interaction Events")}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        records: [{ fields }],
       }),
     })
 
     if (!response.ok) {
       const error = await response.text()
-      console.error("[Airtable] Create survey response error:", error)
+      console.error("[Airtable] Create interaction event error:", error)
       return { success: false, error: `Airtable API error: ${response.status}` }
     }
 
@@ -207,8 +284,39 @@ export async function createSurveyResponse(
 
     return { success: true, id: createdId }
   } catch (err) {
-    console.error("[Airtable] Create survey response exception:", err)
-    return { success: false, error: "Failed to create survey response" }
+    console.error("[Airtable] Create interaction event exception:", err)
+    return { success: false, error: "Failed to create interaction event" }
+  }
+}
+
+// ===================
+// Main Submission Function
+// ===================
+
+export async function createSurveyResponse(
+  submission: SurveySubmission
+): Promise<{ success: boolean; id?: string; parentId?: string; error?: string }> {
+  if (!AIRTABLE_TOKEN || !AIRTABLE_BASE_ID) {
+    return { success: false, error: "Airtable credentials not configured" }
+  }
+
+  if (!submission.email) {
+    return { success: false, error: "Email is required" }
+  }
+
+  // Step 1: Find or create parent
+  let parent = await findParentByEmail(submission.email)
+  
+  if (!parent) {
+    parent = await createParent(submission)
+  }
+
+  // Step 2: Create interaction event (even if parent creation failed)
+  const result = await createInteractionEvent(submission, parent?.id || null)
+
+  return {
+    ...result,
+    parentId: parent?.id,
   }
 }
 
