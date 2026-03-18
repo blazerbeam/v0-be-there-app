@@ -33,6 +33,7 @@ export interface Opportunity {
   gradeRelevance: string[]
   tags: string[]
   active: boolean
+  type: string // "Volunteer", "Donation", or "Both"
 }
 
 function getField(fields: Record<string, unknown>, ...keys: string[]) {
@@ -72,6 +73,7 @@ function normalizeOpportunity(record: AirtableRecord<Record<string, unknown>>): 
   const gradeRelevance = getField(fields, "grade_relevance", "Grade Relevance", "gradeRelevance", "Grades")
   const tags = getField(fields, "tags", "Tags")
   const active = getField(fields, "active", "Active")
+  const type = getField(fields, "type", "Type")
 
   return {
     id: record.id,
@@ -86,6 +88,7 @@ function normalizeOpportunity(record: AirtableRecord<Record<string, unknown>>): 
     gradeRelevance: toArray(gradeRelevance),
     tags: toArray(tags),
     active: active === true || active === "true" || active === 1,
+    type: toStringValue(type, "Volunteer"), // Default to Volunteer if not specified
   }
 }
 

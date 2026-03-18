@@ -94,8 +94,18 @@ interface ScoreBreakdown {
   tagScore: number
   timeScore: number
   availScore: number
+  contributionScore: number
   total: number
   reasons: string[]
+}
+
+// Normalize contribution type for comparison
+function normalizeContributionType(type: string): string {
+  const t = normalize(type)
+  if (t.includes("donat")) return "donation"
+  if (t.includes("volunt")) return "volunteer"
+  if (t.includes("both")) return "both"
+  return "volunteer" // Default
 }
 
 function scoreOpportunity(opp: Opportunity, preferences: UserPreferences): ScoreBreakdown {
@@ -104,6 +114,7 @@ function scoreOpportunity(opp: Opportunity, preferences: UserPreferences): Score
     tagScore: 0,
     timeScore: 0,
     availScore: 0,
+    contributionScore: 0,
     total: 0,
     reasons: [],
   }
@@ -168,8 +179,35 @@ function scoreOpportunity(opp: Opportunity, preferences: UserPreferences): Score
     }
   }
 
+  // 5. Contribution type match
+  const userContrib = normalizeContributionType(preferences.contributionType)
+  const oppContrib = normalizeContributionType(opp.type)
+  
+  // Score based on contribution type alignment
+  if (userContrib === "both") {
+    // User is open to both - give bonus to all opportunities
+    breakdown.contributionScore = 2
+    if (oppContrib === "donation") {
+      breakdown.reasons.push("Donation opportunity")
+    }
+  } else if (userContrib === "donate") {
+    // User prefers donating
+    if (oppContrib === "donation" || oppContrib === "both") {
+      breakdown.contributionScore = 3
+      breakdown.reasons.push("Donation opportunity")
+    }
+    // Volunteer opportunities still eligible but no bonus
+  } else if (userContrib === "volunteer") {
+    // User prefers volunteering
+    if (oppContrib === "volunteer" || oppContrib === "both") {
+      breakdown.contributionScore = 3
+      breakdown.reasons.push("Volunteer opportunity")
+    }
+    // Donation opportunities still eligible but no bonus
+  }
+
   // Calculate total
-  breakdown.total = breakdown.gradeScore + breakdown.tagScore + breakdown.timeScore + breakdown.availScore
+  breakdown.total = breakdown.gradeScore + breakdown.tagScore + breakdown.timeScore + breakdown.availScore + breakdown.contributionScore
 
   return breakdown
 }
@@ -180,6 +218,8 @@ function generateMatchReason(breakdown: ScoreBreakdown, opp: Opportunity): strin
     // Prioritize specific reasons
     const priorityOrder = [
       "Matches your interest",
+      "Donation opportunity",
+      "Volunteer opportunity",
       "Works with your schedule",
       "Fits your schedule",
       "Quick commitment",
@@ -196,6 +236,8 @@ function generateMatchReason(breakdown: ScoreBreakdown, opp: Opportunity): strin
   }
   
   // Fallback reasons based on opportunity characteristics
+  const oppType = normalizeContributionType(opp.type)
+  if (oppType === "donation") return "Donation opportunity"
   if (normalize(opp.timeCommitment).includes("one-time")) return "Quick win"
   if (opp.gradeRelevance.length > 0) return "Grade-specific opportunity"
   
