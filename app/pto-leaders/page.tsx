@@ -176,48 +176,48 @@ export default function PTOLeadersPage() {
       <section className="px-6 py-16 md:py-20 bg-card">
         <div className="max-w-4xl mx-auto">
           <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-            {/* Today */}
+            {/* Before */}
             <div className="p-6 md:p-8 bg-background rounded-2xl border border-border">
-              <h3 className="font-serif text-xl text-muted-foreground mb-6">Today</h3>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+              <h3 className="font-serif text-xl text-muted-foreground mb-6">Before</h3>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 flex-shrink-0" />
                   <span className="text-muted-foreground">Same parents do most of the work</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                <li className="flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 flex-shrink-0" />
                   <span className="text-muted-foreground">Roles feel too big</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                <li className="flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 flex-shrink-0" />
                   <span className="text-muted-foreground">Hard to know who can help</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">Last-minute scrambling before events</span>
+                <li className="flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 flex-shrink-0" />
+                  <span className="text-muted-foreground">Last-minute scrambling</span>
                 </li>
               </ul>
             </div>
             
-            {/* With BeThere */}
+            {/* After */}
             <div className="p-6 md:p-8 bg-primary/5 rounded-2xl border border-primary/20">
-              <h3 className="font-serif text-xl text-primary mb-6">With BeThere</h3>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">More parents involved in small ways</span>
+              <h3 className="font-serif text-xl text-primary mb-6">After</h3>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">More parents helping in small ways</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Tasks broken into manageable chunks</span>
+                <li className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">Tasks broken into 30–60 minute chunks</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Clear visibility into who can help</span>
+                <li className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">Clear visibility into who&apos;s helping</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Gaps identified early</span>
+                <li className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">Gaps identified before the event</span>
                 </li>
               </ul>
             </div>
