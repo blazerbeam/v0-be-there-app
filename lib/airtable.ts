@@ -236,33 +236,12 @@ async function createInteractionEvent(
   parentId: string | null
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   try {
-    // Start with empty fields - we'll add them one by one once we know the table works
+    // Create an empty record first to test table access
+    // Once this works, we'll add fields
     const fields: Record<string, unknown> = {}
 
-    // Store all submission data as Notes (a common long text field name in Airtable)
-    const notesContent = `
-Survey Submission
-=================
-Name: ${submission.name}
-Email: ${submission.email}
-Phone: ${submission.phone || "N/A"}
-Contact Preference: ${submission.preferredContact}
-School: ${submission.school}
-Grades: ${submission.grades?.join(", ") || "N/A"}
-Time Available: ${submission.timeAvailable}
-Availability: ${submission.availability?.join(", ") || "N/A"}
-Interests: ${submission.interests?.join(", ") || "N/A"}
-Contribution Type: ${submission.contributionType}
-Selected Opportunities: ${submission.selectedOpportunityIds?.join(", ") || "N/A"}
-Submitted: ${new Date().toISOString()}
-Parent ID: ${parentId || "N/A"}
-`.trim()
-
-    // Try "Notes" field (common in Airtable)
-    fields.Notes = notesContent
-
     const payload = { records: [{ fields }] }
-    console.log("[v0] Interaction Events - sending to table 'Interaction Events' with fields:", Object.keys(fields))
+    console.log("[v0] Testing Interaction Events table access with empty record")
 
     const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Interaction Events")}`, {
       method: "POST",
