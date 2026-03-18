@@ -20,8 +20,11 @@ export default function AboutPage() {
           <span className="font-serif text-xl text-foreground">BeThere</span>
         </Link>
         <nav className="flex items-center gap-6">
-          <Link href="/about" className="text-sm font-medium text-foreground">
-            About
+          <Link 
+            href="/about" 
+            className="text-sm font-semibold text-foreground underline underline-offset-4"
+          >
+            About BeThere
           </Link>
         </nav>
       </header>
@@ -67,13 +70,13 @@ export default function AboutPage() {
                 You need volunteers to make everything happen — events, fundraisers, classroom support.
               </p>
               <p className="text-foreground font-medium mb-4">But in reality:</p>
-              <ul className="space-y-3 text-muted-foreground">
-                <li>The same 4–5 parents end up doing most of the work</li>
+              <ul className="space-y-3 text-muted-foreground list-disc list-inside">
+                <li>The <strong className="text-foreground">same 4–5 parents</strong> end up doing most of the work</li>
                 <li>Outreach is broad (&quot;we need help!&quot;) but not targeted</li>
                 <li>It&apos;s hard to know who has time, interest, or specific skills</li>
               </ul>
               <p className="mt-6 text-muted-foreground">
-                That leads to burnout for a few, and low engagement from everyone else.
+                That leads to <strong className="text-foreground">burnout</strong> for a few, and low engagement from everyone else.
               </p>
             </div>
 
@@ -86,11 +89,11 @@ export default function AboutPage() {
                 Most parents care. They want to be involved.
               </p>
               <p className="text-foreground font-medium mb-4">But:</p>
-              <ul className="space-y-3 text-muted-foreground">
+              <ul className="space-y-3 text-muted-foreground list-disc list-inside">
                 <li>They don&apos;t know what opportunities exist</li>
                 <li>They&apos;re not sure what they&apos;d actually be good at</li>
-                <li>They worry about overcommitting</li>
-                <li>They don&apos;t see options that fit their schedule</li>
+                <li>They <strong className="text-foreground">worry about overcommitting</strong></li>
+                <li>They don&apos;t see options that <strong className="text-foreground">fit their schedule</strong></li>
               </ul>
               <p className="mt-6 text-muted-foreground">
                 So they don&apos;t raise their hand — even when they would have said yes to the right thing.
@@ -110,7 +113,7 @@ export default function AboutPage() {
             Instead of asking parents to figure it out themselves…
           </p>
           <p className="text-lg text-foreground">
-            What if we showed them where they&apos;re most likely to help — based on their time, interests, and availability?
+            What if we showed them <strong>where they&apos;re most likely to help</strong> — based on their time, interests, and availability?
           </p>
         </div>
       </section>
@@ -137,7 +140,7 @@ export default function AboutPage() {
             <div className="p-6 bg-background rounded-2xl">
               <div className="text-3xl font-serif text-primary mb-4">3</div>
               <p className="text-foreground">
-                We match them to real opportunities at their school — including smaller, more manageable ways to help
+                We match them to real opportunities at their school — including <strong>small, manageable ways</strong> to help
               </p>
             </div>
             <div className="p-6 bg-background rounded-2xl">
@@ -174,21 +177,21 @@ export default function AboutPage() {
               <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-6">
                 For PTOs
               </h2>
-              <ul className="space-y-4 text-muted-foreground">
-                <li>Reach more parents — not just the usual volunteers</li>
+              <ul className="space-y-4 text-muted-foreground list-disc list-inside">
+                <li>Reach <strong className="text-foreground">more parents</strong> — not just the usual volunteers</li>
                 <li>Break big roles into smaller, approachable tasks</li>
                 <li>Match people to opportunities they&apos;re more likely to say yes to</li>
-                <li>Reduce burnout and spread the load</li>
+                <li><strong className="text-foreground">Reduce burnout</strong> and spread the load</li>
               </ul>
             </div>
             <div>
               <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-6">
                 For Parents
               </h2>
-              <ul className="space-y-4 text-muted-foreground">
-                <li>See ways to help that fit your schedule</li>
+              <ul className="space-y-4 text-muted-foreground list-disc list-inside">
+                <li>See <strong className="text-foreground">ways that actually fit your life</strong></li>
                 <li>Find opportunities aligned with what you enjoy</li>
-                <li>Contribute in small, realistic ways</li>
+                <li>Contribute in <strong className="text-foreground">small, realistic ways</strong></li>
                 <li>Feel more connected to your school community</li>
               </ul>
             </div>
@@ -219,16 +222,19 @@ export default function AboutPage() {
           </h2>
           <div className="space-y-6 text-muted-foreground leading-relaxed">
             <p>
-              I&apos;m a parent at Forest Hills and part of the PTO, and I kept seeing the same pattern — the same small group of parents doing everything, while a lot of others wanted to help but weren&apos;t sure how.
+              I&apos;m Jeremy — a parent at Forest Hills and part of the PTO. I kept seeing the same pattern: the <strong className="text-foreground">same small group of parents</strong> doing everything, while a lot of others wanted to help but weren&apos;t sure how.
             </p>
             <p>
               At the same time, I know how busy life is. Between work, kids, and everything else, it&apos;s hard to commit to something that feels big or unclear.
             </p>
             <p>
-              This started as a simple idea: What if we made it easier for parents to find small, realistic ways to contribute — based on what they actually have time for?
+              This started as a simple idea: What if we made it easier for parents to find <strong className="text-foreground">small, realistic ways</strong> to contribute — based on what they actually have time for?
             </p>
             <p className="text-foreground">
               This is an early version, but I&apos;m excited about what it could become.
+            </p>
+            <p>
+              If you&apos;re interested in bringing this to your school, I&apos;d love to hear from you.
             </p>
           </div>
         </div>

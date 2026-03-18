@@ -20,8 +20,11 @@ export function LandingPage({ onStart }: LandingPageProps) {
           <span className="font-serif text-xl text-foreground">BeThere</span>
         </div>
         <nav className="flex items-center gap-6">
-          <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            About
+          <Link 
+            href="/about" 
+            className="text-sm font-semibold text-muted-foreground hover:text-foreground hover:underline underline-offset-4 transition-colors"
+          >
+            About BeThere
           </Link>
         </nav>
       </header>
@@ -48,6 +51,13 @@ export function LandingPage({ onStart }: LandingPageProps) {
             See ways I can help
             <ArrowRight className="w-5 h-5" />
           </Button>
+
+          <Link 
+            href="/about"
+            className="mt-4 inline-block text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+          >
+            Learn more about how this works
+          </Link>
         </div>
       </section>
 
