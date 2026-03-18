@@ -57,7 +57,7 @@ Timestamp: ${timestamp}
         },
         body: JSON.stringify({
           from: "BeThere <onboarding@resend.dev>",
-          to: ["hello@bethere.org"],
+          to: ["hello@bethere.community"],
           subject: "New BeThere Interest Submission",
           text: emailBody,
         }),
