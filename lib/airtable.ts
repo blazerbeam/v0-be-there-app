@@ -182,16 +182,14 @@ async function findParentByEmail(email: string): Promise<ParentRecord | null> {
 
 async function createParent(submission: SurveySubmission): Promise<ParentRecord | null> {
   try {
+    // Start with minimal required fields only
     const fields: Record<string, unknown> = {
       Name: submission.name,
       Email: submission.email,
     }
-    
-    // Add optional fields if they exist
-    if (submission.phone) fields.Phone = submission.phone
-    if (submission.preferredContact) fields["Preferred Contact"] = submission.preferredContact
-    if (submission.school) fields.School = submission.school
-    if (submission.grades?.length) fields.Grades = submission.grades
+
+    const payload = { records: [{ fields }] }
+    console.log("[v0] Creating Parent with payload:", JSON.stringify(payload, null, 2))
 
     const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Parents")}`, {
       method: "POST",
@@ -199,13 +197,12 @@ async function createParent(submission: SurveySubmission): Promise<ParentRecord 
         Authorization: `Bearer ${AIRTABLE_TOKEN}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        records: [{ fields }],
-      }),
+      body: JSON.stringify(payload),
     })
 
     if (!response.ok) {
-      console.error("[Airtable] Create parent error:", await response.text())
+      const errorText = await response.text()
+      console.error("[v0] Create parent error response:", errorText)
       return null
     }
 
@@ -234,33 +231,22 @@ async function createInteractionEvent(
   parentId: string | null
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   try {
-    const fields: Record<string, unknown> = {
-      "Event Type": "Survey Submission",
-      // Store parent info directly if no linked parent
-      "Parent Name": submission.name,
-      "Parent Email": submission.email,
-      // Map survey preferences
-      "Time Commitment": timeCommitmentMap[submission.timeAvailable] || submission.timeAvailable,
-      Availability: submission.availability.map((a) => availabilityMap[a] || a),
-      Interests: submission.interests.map((i) => interestsMap[i] || i),
-      "Contribution Type": contributionTypeMap[submission.contributionType] || submission.contributionType,
-    }
+    // Start with minimal fields - we'll add more once we know what exists
+    const fields: Record<string, unknown> = {}
 
-    // Link to parent if we have one
+    // Link to parent if we have one (linked record field - must be array of IDs)
     if (parentId) {
       fields.Parent = [parentId]
     }
 
-    // Link to selected opportunities
+    // Link to selected opportunities (linked record field - must be array of IDs)
     if (submission.selectedOpportunityIds?.length) {
       fields.Opportunities = submission.selectedOpportunityIds
     }
 
-    // Add optional fields
-    if (submission.phone) fields["Parent Phone"] = submission.phone
-    if (submission.preferredContact) fields["Preferred Contact"] = submission.preferredContact
-    if (submission.school) fields.School = submission.school
-    if (submission.grades?.length) fields.Grades = submission.grades
+    const payload = { records: [{ fields }] }
+    console.log("[v0] Creating Interaction Event with payload:", JSON.stringify(payload, null, 2))
+    console.log("[v0] Submission data for reference:", JSON.stringify(submission, null, 2))
 
     const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Interaction Events")}`, {
       method: "POST",
@@ -268,14 +254,12 @@ async function createInteractionEvent(
         Authorization: `Bearer ${AIRTABLE_TOKEN}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        records: [{ fields }],
-      }),
+      body: JSON.stringify(payload),
     })
 
     if (!response.ok) {
-      const error = await response.text()
-      console.error("[Airtable] Create interaction event error:", error)
+      const errorText = await response.text()
+      console.error("[v0] Create interaction event error response:", errorText)
       return { success: false, error: `Airtable API error: ${response.status}` }
     }
 
