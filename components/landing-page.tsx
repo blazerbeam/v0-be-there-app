@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Heart, Users, Calendar, ArrowRight } from "lucide-react"
+import Link from "next/link"
 
 interface LandingPageProps {
   onStart: () => void
@@ -18,6 +19,11 @@ export function LandingPage({ onStart }: LandingPageProps) {
           </div>
           <span className="font-serif text-xl text-foreground">BeThere</span>
         </div>
+        <nav className="flex items-center gap-6">
+          <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            About
+          </Link>
+        </nav>
       </header>
 
       {/* Hero Section */}
