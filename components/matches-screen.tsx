@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ArrowLeft, Clock, Heart, Calendar, Sparkles, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { analytics } from "@/lib/analytics"
 import type { Opportunity } from "@/lib/airtable"
 import type { UserPreferences } from "@/app/page"
 
@@ -30,6 +31,15 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
   const [data, setData] = useState<MatchResponse | null>(null)
   const [error, setError] = useState<Error | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const hasTrackedView = useRef(false)
+
+  // Analytics: Track recommendations viewed (only once when data loads)
+  useEffect(() => {
+    if (data && data.opportunities.length > 0 && !hasTrackedView.current) {
+      analytics.recommendationsViewed()
+      hasTrackedView.current = true
+    }
+  }, [data])
 
   useEffect(() => {
     async function fetchMatches() {
@@ -213,6 +223,7 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
             href="https://docs.google.com/forms/d/e/1FAIpQLSfxqOuCkBYnwl8TjMCdzbqNvsKhOPn3pu-2G1H4owIc8AsbZg/viewform?usp=dialog"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => analytics.feedbackLinkClicked()}
             className="underline underline-offset-2 hover:text-muted-foreground transition-colors"
           >
             Tell us what&apos;s missing

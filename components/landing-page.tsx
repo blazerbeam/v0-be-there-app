@@ -3,12 +3,23 @@
 import { Button } from "@/components/ui/button"
 import { Heart, Users, Calendar, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { analytics } from "@/lib/analytics"
 
 interface LandingPageProps {
   onStart: () => void
 }
 
 export function LandingPage({ onStart }: LandingPageProps) {
+  // Analytics: Track parent CTA click
+  const handleStartClick = () => {
+    analytics.homepageParentCtaClicked()
+    onStart()
+  }
+
+  // Analytics: Track PTO link click
+  const handlePtoLinkClick = () => {
+    analytics.homepagePtoLinkClicked()
+  }
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -46,7 +57,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
           </p>
 
           <Button 
-            onClick={onStart}
+            onClick={handleStartClick}
             size="lg"
             className="mt-10 px-8 py-6 text-lg rounded-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
           >
@@ -59,6 +70,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             Running a PTO or school event?{" "}
             <Link 
               href="/pto-leaders" 
+              onClick={handlePtoLinkClick}
               className="underline underline-offset-2 hover:text-muted-foreground transition-colors"
             >
               See how this works for you
