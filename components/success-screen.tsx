@@ -89,8 +89,23 @@ export function SuccessScreen({ opportunities, onStartOver }: SuccessScreenProps
         </Button>
       </div>
 
+      {/* Feedback prompt */}
+      <div className="text-center mt-8 pt-6 border-t border-border max-w-sm mx-auto">
+        <p className="text-sm text-muted-foreground mb-2">
+          Have 1 minute? Help us improve this early version.
+        </p>
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSfxqOuCkBYnwl8TjMCdzbqNvsKhOPn3pu-2G1H4owIc8AsbZg/viewform?usp=dialog"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-primary hover:text-primary/80 underline underline-offset-4"
+        >
+          Share feedback
+        </a>
+      </div>
+
       {/* Footer */}
-      <footer className="text-center mt-8">
+      <footer className="text-center mt-6">
         <p className="text-sm text-muted-foreground">
           Thanks for being there for your school community.
         </p>

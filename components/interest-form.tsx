@@ -110,6 +110,21 @@ export function InterestForm({ trigger }: InterestFormProps) {
             >
               Close
             </Button>
+
+            {/* Feedback prompt */}
+            <div className="mt-6 pt-5 border-t border-border text-center">
+              <p className="text-sm text-muted-foreground mb-2">
+                Have 1 minute? Help us improve this early version.
+              </p>
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSfxqOuCkBYnwl8TjMCdzbqNvsKhOPn3pu-2G1H4owIc8AsbZg/viewform?usp=dialog"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-primary hover:text-primary/80 underline underline-offset-4"
+              >
+                Share feedback
+              </a>
+            </div>
           </div>
         ) : (
           <>
