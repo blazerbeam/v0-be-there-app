@@ -185,7 +185,7 @@ export async function createSurveyResponse(
       Object.entries(fields).filter(([, v]) => v !== undefined)
     )
 
-    const response = await fetch(`${AIRTABLE_API_URL}/Survey Responses`, {
+    const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Survey Responses")}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${AIRTABLE_TOKEN}`,
