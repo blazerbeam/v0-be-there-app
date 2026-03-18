@@ -272,11 +272,11 @@ export default function PTOLeadersPage() {
       {/* CTA Section */}
       <section className="px-6 py-16 md:py-24">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-foreground mb-4 text-balance">
+          <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-foreground mb-3 text-balance">
             Want to try this with your PTO?
           </h2>
           <p className="text-muted-foreground mb-8">
-            We&apos;ll help you get set up and start matching parents to opportunities.
+            We&apos;re starting with a small group of schools.
           </p>
           <InterestForm
             trigger={
