@@ -119,17 +119,17 @@ function scoreOpportunity(opp: Opportunity, preferences: UserPreferences): Score
     reasons: [],
   }
 
-  // 1. Grade relevance score (soft - bonus if matches, no penalty if doesn't)
+  // 1. Grade relevance score (bonus for matches - grade filtering already applied)
+  // Note: By the time we score, opportunities are already grade-eligible
   if (opp.gradeRelevance.length === 0) {
     // General opportunity - small bonus
     breakdown.gradeScore = 1
     breakdown.reasons.push("Open to all families")
-  } else if (preferences.grades.length > 0 && hasGradeOverlap(opp.gradeRelevance, preferences.grades)) {
-    // Grade match - bigger bonus
+  } else {
+    // Grade-specific opportunity that matches user grades - bigger bonus
     breakdown.gradeScore = 3
     breakdown.reasons.push("Great for your kids")
   }
-  // If no match, score stays 0 but NOT excluded
 
   // 2. Tag/interest match
   const oppTags = opp.tags.map(normalize)
@@ -245,6 +245,28 @@ function generateMatchReason(breakdown: ScoreBreakdown, opp: Opportunity): strin
 }
 
 // ===================
+// GRADE ELIGIBILITY CHECK (HARD FILTER)
+// ===================
+
+// Check if opportunity is eligible for user based on grade relevance
+// Rule: If opportunity has Grade Relevance set, user grades MUST overlap. Otherwise excluded.
+// If Grade Relevance is empty, opportunity is general/open to all.
+function isGradeEligible(opp: Opportunity, userGrades: string[]): boolean {
+  // Empty Grade Relevance = open to all
+  if (opp.gradeRelevance.length === 0) {
+    return true
+  }
+  
+  // If user has no grades selected, they can still see general opportunities
+  if (userGrades.length === 0) {
+    return true
+  }
+  
+  // Grade-specific opportunity: MUST have overlap with user grades
+  return hasGradeOverlap(opp.gradeRelevance, userGrades)
+}
+
+// ===================
 // MAIN MATCHING LOGIC
 // ===================
 
@@ -258,27 +280,33 @@ export async function POST(request: Request) {
     // Fetch all opportunities from Airtable
     const allOpportunities = await fetchOpportunities()
     
-    // Debug logging
     console.log("[v0] Total opportunities loaded:", allOpportunities.length)
+    console.log("[v0] User selected grades:", preferences.grades)
     
-    // ONLY hard filter: Active = true
+    // HARD FILTER 1: Active = true
     const activeOpportunities = allOpportunities.filter(opp => opp.active)
     console.log("[v0] Active opportunities:", activeOpportunities.length)
     
-    // Log sample opportunities for debugging
-    const samples = activeOpportunities.slice(0, 5)
-    console.log("[v0] Sample opportunities:")
-    for (const sample of samples) {
-      console.log("[v0]  -", sample.title)
-      console.log("[v0]    Active:", sample.active)
-      console.log("[v0]    Grade Relevance:", sample.gradeRelevance)
-      console.log("[v0]    Tags:", sample.tags)
-      console.log("[v0]    Time Commitment:", sample.timeCommitment)
-      console.log("[v0]    Timing Window:", sample.timingWindow)
-    }
+    // HARD FILTER 2: Grade eligibility
+    // Log excluded grade-specific opportunities for debugging
+    const gradeExcluded: Opportunity[] = []
+    const gradeEligible = activeOpportunities.filter(opp => {
+      const eligible = isGradeEligible(opp, preferences.grades)
+      if (!eligible) {
+        gradeExcluded.push(opp)
+        console.log("[v0] GRADE EXCLUDED:", opp.title)
+        console.log("[v0]   Opportunity Grade Relevance:", opp.gradeRelevance)
+        console.log("[v0]   User selected grades:", preferences.grades)
+        console.log("[v0]   Excluded BEFORE fallback: true")
+      }
+      return eligible
+    })
     
-    // Score ALL active opportunities (no hard filtering on grades/interests)
-    const scoredOpportunities: MatchedOpportunity[] = activeOpportunities.map(opp => {
+    console.log("[v0] Grade-eligible opportunities:", gradeEligible.length)
+    console.log("[v0] Grade-excluded opportunities:", gradeExcluded.length)
+    
+    // Score only grade-eligible opportunities
+    const scoredOpportunities: MatchedOpportunity[] = gradeEligible.map(opp => {
       const breakdown = scoreOpportunity(opp, preferences)
       return {
         ...opp,
@@ -288,12 +316,6 @@ export async function POST(request: Request) {
     })
     
     console.log("[v0] Scored opportunities:", scoredOpportunities.length)
-    console.log("[v0] Score distribution:")
-    const scoreGroups: Record<number, number> = {}
-    for (const opp of scoredOpportunities) {
-      scoreGroups[opp.matchScore] = (scoreGroups[opp.matchScore] || 0) + 1
-    }
-    console.log("[v0]", scoreGroups)
     
     // Sort by score (highest first)
     scoredOpportunities.sort((a, b) => b.matchScore - a.matchScore)
@@ -302,12 +324,22 @@ export async function POST(request: Request) {
     const hasStrongMatches = scoredOpportunities.some(m => m.matchScore >= 3)
     
     // Always return at least MIN_RESULTS, up to MAX_RESULTS
+    // IMPORTANT: Never pull from gradeExcluded - those are hard excluded
     const numResults = Math.min(
       Math.max(MIN_RESULTS, hasStrongMatches ? MAX_RESULTS : MIN_RESULTS),
       scoredOpportunities.length
     )
     
     const topMatches = scoredOpportunities.slice(0, numResults)
+    
+    // Verify no grade-excluded opportunities snuck into results
+    for (const match of topMatches) {
+      const wasExcluded = gradeExcluded.some(ex => ex.id === match.id)
+      if (wasExcluded) {
+        console.log("[v0] ERROR: Grade-excluded opportunity in results:", match.title)
+        console.log("[v0]   Fallback tried to reintroduce it: true")
+      }
+    }
     
     console.log("[v0] Returning", topMatches.length, "matches")
     console.log("[v0] Has strong matches:", hasStrongMatches)
