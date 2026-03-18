@@ -45,32 +45,26 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Section 2: Why I Built This */}
+      {/* Section 2: The Problem */}
       <section className="px-6 py-16 md:py-20 bg-card">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-8">
-            Why I built this
+            The problem
           </h2>
           <div className="space-y-5 text-muted-foreground">
             <p>
-              I&apos;m Jeremy Myrland, Co-President of the PTO at Forest Hills.
+              At most schools, the same small group of parents ends up doing most of the work.
             </p>
             <p>
-              I have twin boys in 4th grade, and like a lot of parents, I&apos;m balancing work, coaching, and trying to stay involved at school.
-            </p>
-            <p>
-              In my day job, I&apos;m a Principal Product Manager. I spend a lot of time thinking about how to make complex systems simpler and easier for people to use.
-            </p>
-            <p>
-              At school, I kept seeing the same pattern:
+              Meanwhile, many other parents want to help — but don&apos;t have a clear or manageable way to do it.
             </p>
             <ul className="space-y-2 pl-5">
-              <li className="list-disc">The same parents doing most of the work</li>
-              <li className="list-disc">Roles that felt too big to take on</li>
-              <li className="list-disc">Parents who wanted to help, but didn&apos;t know how in a way that fit their schedule</li>
+              <li className="list-disc">Roles feel too big to take on</li>
+              <li className="list-disc">It&apos;s hard to know what&apos;s actually needed</li>
+              <li className="list-disc">Opportunities don&apos;t match real schedules</li>
             </ul>
             <p className="pt-2 text-foreground">
-              BeThere started as a simple idea: What if we could make it easier for parents to show up in small, realistic ways?
+              BeThere makes it easier for more parents to show up — in small, realistic ways that fit their lives.
             </p>
           </div>
         </div>
@@ -167,6 +161,56 @@ export default function AboutPage() {
                 </button>
               }
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Section: Who's behind BeThere */}
+      <section className="px-6 py-12 md:py-16 border-t border-border">
+        <div className="max-w-xl mx-auto">
+          <h2 className="font-serif text-xl md:text-2xl text-foreground mb-8 text-center">
+            Who&apos;s behind BeThere
+          </h2>
+          
+          <div className="text-center">
+            <h3 className="text-lg font-medium text-foreground">Jeremy Myrland</h3>
+            <p className="text-sm text-muted-foreground mt-1">Founder</p>
+            
+            <div className="mt-6 space-y-4 text-sm text-muted-foreground text-left">
+              <p>
+                I&apos;m a parent of twin boys in elementary school and currently serve as Vice President of the PTO at my kids&apos; school.
+              </p>
+              <p>
+                Like a lot of parents, I&apos;m balancing work, coaching, and trying to stay involved where I can.
+              </p>
+              <p>
+                In my day job, I&apos;m a Principal Product Manager at Nike. I&apos;ve spent over 20 years working in technology, including roles at Apple, Wayfair, Workday, and several startups.
+              </p>
+              <p>
+                BeThere started from a simple observation: a small group of parents tend to carry most of the load, while many others want to help but don&apos;t have a clear or manageable way to do it.
+              </p>
+              <p>
+                I&apos;m building this to make it easier for more parents to show up in ways that actually fit their lives.
+              </p>
+            </div>
+            
+            <div className="mt-6 text-xs text-muted-foreground/70 space-y-1">
+              <p>
+                <a href="mailto:jeremy@bethere.community" className="hover:text-muted-foreground transition-colors">
+                  jeremy@bethere.community
+                </a>
+              </p>
+              <p>
+                <a 
+                  href="https://www.linkedin.com/in/jpmyrland/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-muted-foreground transition-colors"
+                >
+                  LinkedIn
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </section>
