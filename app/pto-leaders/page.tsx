@@ -201,63 +201,65 @@ export default function PTOLeadersPage() {
       </section>
 
       {/* Example Walkthrough Section */}
-      <section className="px-6 py-16 md:py-20">
+      <section className="px-6 py-16 md:py-20 bg-card">
         <div className="max-w-4xl mx-auto">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-4 text-center">
-            See it in action
-          </h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Here&apos;s how BeThere transforms your Spring Carnival planning
-          </p>
+          <div className="text-center mb-10">
+            <span className="text-sm font-medium text-primary uppercase tracking-wide">Example</span>
+            <h2 className="font-serif text-2xl md:text-3xl text-foreground mt-2">
+              Spring Carnival
+            </h2>
+          </div>
           
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
             {/* Before */}
-            <div className="p-6 bg-card rounded-2xl border border-border">
-              <h3 className="font-medium text-foreground mb-4 flex items-center gap-2">
-                <span className="text-muted-foreground">Before:</span> The usual way
-              </h3>
-              <ul className="space-y-3 text-muted-foreground text-sm">
-                <li>&quot;We need volunteers for Spring Carnival!&quot;</li>
-                <li>Same 5 parents sign up</li>
-                <li>Everyone else thinks it&apos;s too much</li>
-                <li>Scrambling the week before</li>
-                <li>Burnout for the core team</li>
+            <div className="p-6 md:p-8 bg-background rounded-2xl border border-border">
+              <h3 className="font-serif text-lg text-muted-foreground mb-5">Before</h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">One person owns most of the work</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">Tasks are unclear or too large</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">Last-minute coordination</span>
+                </li>
               </ul>
             </div>
             
             {/* After */}
-            <div className="p-6 bg-primary/5 rounded-2xl border border-primary/20">
-              <h3 className="font-medium text-foreground mb-4 flex items-center gap-2">
-                <span className="text-primary">After:</span> With BeThere
-              </h3>
-              <ul className="space-y-3 text-foreground text-sm">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Setup crew (Friday 4-6pm)</span>
+            <div className="p-6 md:p-8 bg-primary/5 rounded-2xl border border-primary/20">
+              <h3 className="font-serif text-lg text-primary mb-5">With BeThere</h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Event entered once</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Ticket table shift (1 hour)</span>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="text-foreground">
+                    <span>Tasks automatically suggested:</span>
+                    <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+                      <li>Setup crew (30 min)</li>
+                      <li>Ticket table shifts</li>
+                      <li>Cleanup team</li>
+                    </ul>
+                  </div>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Game booth helper (pick your time)</span>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Parents matched based on interest</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Cleanup crew (Saturday 7-8pm)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Donate prizes (no time needed)</span>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">PTO can see gaps ahead of time</span>
                 </li>
               </ul>
             </div>
           </div>
-          
-          <p className="text-center text-muted-foreground mt-8 text-sm">
-            Small, specific tasks matched to parents who said they can help evenings, weekends, or from home.
-          </p>
         </div>
       </section>
 
