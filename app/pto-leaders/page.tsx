@@ -2,6 +2,7 @@ import { Heart, ArrowRight, Users, Calendar, CheckCircle, Eye, FileEdit, Sparkle
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { InterestForm } from "@/components/interest-form"
+import { PTOCommandView } from "@/components/pto-command-view"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -117,39 +118,52 @@ export default function PTOLeadersPage() {
         </div>
       </section>
 
-      {/* Key Features Section */}
+      {/* PTO Command View Mock */}
       <section className="px-6 py-16 md:py-20 bg-card">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-4 text-center">
+            Your PTO command center
+          </h2>
+          <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
+            Manage committees, events, and volunteers in one place. See who&apos;s helping and where you need more support.
+          </p>
+          <PTOCommandView />
+        </div>
+      </section>
+
+      {/* Key Features Section */}
+      <section className="px-6 py-16 md:py-20">
         <div className="max-w-5xl mx-auto">
           <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center">
             Built for busy PTO leaders
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 bg-background rounded-2xl">
+            <div className="p-6 bg-card rounded-2xl border border-border">
               <Sparkles className="w-6 h-6 text-primary mb-4" />
               <h3 className="font-medium text-foreground mb-2">Smart setup</h3>
               <p className="text-sm text-muted-foreground">AI-assisted breakdown of committees and events into tasks parents can actually take on.</p>
             </div>
-            <div className="p-6 bg-background rounded-2xl">
+            <div className="p-6 bg-card rounded-2xl border border-border">
               <Zap className="w-6 h-6 text-primary mb-4" />
               <h3 className="font-medium text-foreground mb-2">Fast manual entry</h3>
               <p className="text-sm text-muted-foreground">Quick add what you need now, edit and refine later. No complex setup required.</p>
             </div>
-            <div className="p-6 bg-background rounded-2xl">
+            <div className="p-6 bg-card rounded-2xl border border-border">
               <LayoutDashboard className="w-6 h-6 text-primary mb-4" />
               <h3 className="font-medium text-foreground mb-2">PTO command view</h3>
               <p className="text-sm text-muted-foreground">See all your committees, chairs, events, and volunteers in one organized place.</p>
             </div>
-            <div className="p-6 bg-background rounded-2xl">
+            <div className="p-6 bg-card rounded-2xl border border-border">
               <Eye className="w-6 h-6 text-primary mb-4" />
               <h3 className="font-medium text-foreground mb-2">Gap visibility</h3>
               <p className="text-sm text-muted-foreground">Quickly identify where you&apos;re missing help so you can focus your outreach.</p>
             </div>
-            <div className="p-6 bg-background rounded-2xl">
+            <div className="p-6 bg-card rounded-2xl border border-border">
               <FileEdit className="w-6 h-6 text-primary mb-4" />
               <h3 className="font-medium text-foreground mb-2">Draft and publish</h3>
               <p className="text-sm text-muted-foreground">Control what parents see. Prepare opportunities in draft, publish when ready.</p>
             </div>
-            <div className="p-6 bg-background rounded-2xl">
+            <div className="p-6 bg-card rounded-2xl border border-border">
               <CheckCircle className="w-6 h-6 text-primary mb-4" />
               <h3 className="font-medium text-foreground mb-2">Better matching</h3>
               <p className="text-sm text-muted-foreground">Connect parents to opportunities based on their interests, time, and availability.</p>
