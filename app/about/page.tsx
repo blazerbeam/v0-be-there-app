@@ -1,7 +1,8 @@
-import { Metadata } from "next"
 import { Heart, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { InterestForm } from "@/components/interest-form"
+import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "About - BeThere",
@@ -44,12 +45,13 @@ export default function AboutPage() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </Button>
-            <a
-              href="mailto:hello@bethere.community"
-              className="text-primary hover:text-primary/80 underline underline-offset-4 text-sm"
-            >
-              Bring this to your school
-            </a>
+            <InterestForm
+              trigger={
+                <button className="text-primary hover:text-primary/80 underline underline-offset-4 text-sm cursor-pointer">
+                  Bring this to your school
+                </button>
+              }
+            />
           </div>
         </div>
       </section>
@@ -250,12 +252,13 @@ export default function AboutPage() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </Button>
-            <a
-              href="mailto:hello@bethere.community"
-              className="text-primary hover:text-primary/80 underline underline-offset-4 text-sm"
-            >
-              Contact us
-            </a>
+            <InterestForm
+              trigger={
+                <button className="text-primary hover:text-primary/80 underline underline-offset-4 text-sm cursor-pointer">
+                  Contact us
+                </button>
+              }
+            />
           </div>
         </div>
       </section>
