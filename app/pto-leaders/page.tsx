@@ -43,7 +43,108 @@ export default function PTOLeadersPage() {
         </div>
       </section>
 
-      {/* PTO Command View Mock - Moved up for visual impact */}
+      {/* How It Works Section */}
+      <section className="px-6 py-16 md:py-20">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center">
+            How it works
+          </h2>
+          <div className="space-y-8">
+            <div className="flex gap-6 items-start">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="font-serif text-xl text-primary">1</span>
+              </div>
+              <div>
+                <h3 className="font-medium text-lg text-foreground mb-2">Add committees and events</h3>
+                <p className="text-muted-foreground">Import from your existing tools or add them manually. Start with what you already have.</p>
+              </div>
+            </div>
+            <div className="flex gap-6 items-start">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="font-serif text-xl text-primary">2</span>
+              </div>
+              <div>
+                <h3 className="font-medium text-lg text-foreground mb-2">Break work into smaller tasks</h3>
+                <p className="text-muted-foreground">Get suggestions for tasks like &quot;setup crew,&quot; &quot;ticket table shifts,&quot; and &quot;cleanup&quot; based on your event type.</p>
+              </div>
+            </div>
+            <div className="flex gap-6 items-start">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="font-serif text-xl text-primary">3</span>
+              </div>
+              <div>
+                <h3 className="font-medium text-lg text-foreground mb-2">Match parents to opportunities</h3>
+                <p className="text-muted-foreground">See who&apos;s interested, identify gaps, and connect the right people to the right tasks.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Example Walkthrough Section */}
+      <section className="px-6 py-16 md:py-20 bg-card">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-10">
+            <span className="text-sm font-medium text-primary uppercase tracking-wide">Example</span>
+            <h2 className="font-serif text-2xl md:text-3xl text-foreground mt-2">
+              Spring Carnival
+            </h2>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+            {/* Before */}
+            <div className="p-6 md:p-8 bg-background rounded-2xl border border-border">
+              <h3 className="font-serif text-lg text-muted-foreground mb-5">Before</h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">One person owns most of the work</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">Tasks are unclear or too large</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">Last-minute coordination</span>
+                </li>
+              </ul>
+            </div>
+            
+            {/* After */}
+            <div className="p-6 md:p-8 bg-primary/5 rounded-2xl border border-primary/20">
+              <h3 className="font-serif text-lg text-primary mb-5">With BeThere</h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Event entered once</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="text-foreground">
+                    <span>Tasks automatically suggested:</span>
+                    <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+                      <li>Setup crew (30 min)</li>
+                      <li>Ticket table shifts</li>
+                      <li>Cleanup team</li>
+                    </ul>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Parents matched based on interest</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">PTO can see gaps ahead of time</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PTO Command View Mock */}
       <section className="px-6 py-10 md:py-14">
         <div className="max-w-6xl mx-auto">
           <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto">
@@ -119,44 +220,6 @@ export default function PTOLeadersPage() {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="px-6 py-16 md:py-20">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center">
-            How it works
-          </h2>
-          <div className="space-y-8">
-            <div className="flex gap-6 items-start">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="font-serif text-xl text-primary">1</span>
-              </div>
-              <div>
-                <h3 className="font-medium text-lg text-foreground mb-2">Add committees and events</h3>
-                <p className="text-muted-foreground">Import from your existing tools or add them manually. Start with what you already have.</p>
-              </div>
-            </div>
-            <div className="flex gap-6 items-start">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="font-serif text-xl text-primary">2</span>
-              </div>
-              <div>
-                <h3 className="font-medium text-lg text-foreground mb-2">Break work into smaller tasks</h3>
-                <p className="text-muted-foreground">Get suggestions for tasks like &quot;setup crew,&quot; &quot;ticket table shifts,&quot; and &quot;cleanup&quot; based on your event type.</p>
-              </div>
-            </div>
-            <div className="flex gap-6 items-start">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="font-serif text-xl text-primary">3</span>
-              </div>
-              <div>
-                <h3 className="font-medium text-lg text-foreground mb-2">Match parents to opportunities</h3>
-                <p className="text-muted-foreground">See who&apos;s interested, identify gaps, and connect the right people to the right tasks.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Key Features Section */}
       <section className="px-6 py-16 md:py-20">
         <div className="max-w-5xl mx-auto">
@@ -196,69 +259,6 @@ export default function PTOLeadersPage() {
               <CheckCircle className="w-6 h-6 text-primary mb-4" />
               <h3 className="font-medium text-foreground mb-2">Better matching</h3>
               <p className="text-sm text-muted-foreground">Connect parents to opportunities based on their interests, time, and availability.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Example Walkthrough Section */}
-      <section className="px-6 py-16 md:py-20 bg-card">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-10">
-            <span className="text-sm font-medium text-primary uppercase tracking-wide">Example</span>
-            <h2 className="font-serif text-2xl md:text-3xl text-foreground mt-2">
-              Spring Carnival
-            </h2>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-            {/* Before */}
-            <div className="p-6 md:p-8 bg-background rounded-2xl border border-border">
-              <h3 className="font-serif text-lg text-muted-foreground mb-5">Before</h3>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">One person owns most of the work</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">Tasks are unclear or too large</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-muted-foreground/60 mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">Last-minute coordination</span>
-                </li>
-              </ul>
-            </div>
-            
-            {/* After */}
-            <div className="p-6 md:p-8 bg-primary/5 rounded-2xl border border-primary/20">
-              <h3 className="font-serif text-lg text-primary mb-5">With BeThere</h3>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Event entered once</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div className="text-foreground">
-                    <span>Tasks automatically suggested:</span>
-                    <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
-                      <li>Setup crew (30 min)</li>
-                      <li>Ticket table shifts</li>
-                      <li>Cleanup team</li>
-                    </ul>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">Parents matched based on interest</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">PTO can see gaps ahead of time</span>
-                </li>
-              </ul>
             </div>
           </div>
         </div>
