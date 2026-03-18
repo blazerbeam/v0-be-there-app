@@ -11,11 +11,11 @@ interface OnboardingFlowProps {
 }
 
 const schools = [
-  "Lincoln Elementary",
-  "Washington Middle School",
-  "Jefferson High School",
-  "Roosevelt Academy",
-  "Kennedy Elementary",
+  { id: "forest-hills", name: "Forest Hills", active: true },
+  { id: "oak-creek", name: "Oak Creek", active: false },
+  { id: "lake-grove", name: "Lake Grove", active: false },
+  { id: "loms", name: "LOMS", active: false },
+  { id: "lohs", name: "LOHS", active: false },
 ]
 
 const grades = ["Pre-K", "K", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"]
@@ -58,7 +58,7 @@ const contributionTypes = [
 export function OnboardingFlow({ onComplete, onBack }: OnboardingFlowProps) {
   const [step, setStep] = useState(1)
   const [preferences, setPreferences] = useState<UserPreferences>({
-    school: "",
+    school: "Forest Hills",
     grades: [],
     timeAvailable: "",
     availability: [],
@@ -158,10 +158,12 @@ export function OnboardingFlow({ onComplete, onBack }: OnboardingFlowProps) {
             <div className="space-y-3">
               {schools.map((school) => (
                 <TapButton
-                  key={school}
-                  label={school}
-                  selected={preferences.school === school}
-                  onClick={() => updatePreference("school", school)}
+                  key={school.id}
+                  label={school.name}
+                  badge={!school.active ? "Coming Soon" : undefined}
+                  selected={preferences.school === school.name}
+                  onClick={() => school.active && updatePreference("school", school.name)}
+                  disabled={!school.active}
                 />
               ))}
             </div>
@@ -298,32 +300,46 @@ function StepContainer({
 function TapButton({
   label,
   description,
+  badge,
   selected,
   onClick,
   multiSelect = false,
+  disabled = false,
 }: {
   label: string
   description?: string
+  badge?: string
   selected: boolean
   onClick: () => void
   multiSelect?: boolean
+  disabled?: boolean
 }) {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={`w-full p-5 rounded-2xl text-left transition-all duration-200 border-2 flex items-center gap-4 ${
-        selected
+        disabled
+          ? "border-border bg-muted/50 cursor-not-allowed opacity-60"
+          : selected
           ? "border-primary bg-primary/10"
           : "border-border bg-card hover:border-primary/30 hover:bg-card/80"
       }`}
     >
       <div className="flex-1">
-        <p className="font-medium text-foreground text-lg">{label}</p>
+        <div className="flex items-center gap-2">
+          <p className={`font-medium text-lg ${disabled ? "text-muted-foreground" : "text-foreground"}`}>{label}</p>
+          {badge && (
+            <span className="px-2 py-0.5 rounded-full bg-secondary text-xs font-medium text-muted-foreground">
+              {badge}
+            </span>
+          )}
+        </div>
         {description && (
           <p className="text-muted-foreground mt-1">{description}</p>
         )}
       </div>
-      {(selected || multiSelect) && (
+      {!disabled && (selected || multiSelect) && (
         <div
           className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
             selected ? "bg-primary" : "bg-secondary"

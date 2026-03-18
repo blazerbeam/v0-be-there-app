@@ -5,9 +5,10 @@ import { LandingPage } from "@/components/landing-page"
 import { OnboardingFlow } from "@/components/onboarding-flow"
 import { MatchesScreen } from "@/components/matches-screen"
 import { ContactScreen } from "@/components/contact-screen"
+import { SuccessScreen } from "@/components/success-screen"
 import type { Opportunity } from "@/lib/airtable"
 
-export type Screen = "landing" | "onboarding" | "matches" | "contact"
+export type Screen = "landing" | "onboarding" | "matches" | "contact" | "success"
 
 export interface UserPreferences {
   school: string
@@ -38,9 +39,11 @@ export default function Home() {
   }
 
   const handleContactSubmit = () => {
-    // In a real app, this would submit the contact form
-    const count = selectedOpportunities.length
-    alert(`You're amazing! ${count === 1 ? "The organizer" : "The organizers"} will be in touch soon.`)
+    // Show success screen instead of alert
+    setCurrentScreen("success")
+  }
+
+  const handleStartOver = () => {
     setCurrentScreen("landing")
     setUserPreferences(null)
     setSelectedOpportunities([])
@@ -67,8 +70,9 @@ export default function Home() {
           onBack={handleBack}
         />
       )}
-      {currentScreen === "matches" && (
+      {currentScreen === "matches" && userPreferences && (
         <MatchesScreen 
+          preferences={userPreferences}
           onSelect={handleSelectOpportunities}
           onBack={handleBack}
         />
@@ -79,6 +83,12 @@ export default function Home() {
           preferences={userPreferences}
           onSubmit={handleContactSubmit}
           onBack={handleBack}
+        />
+      )}
+      {currentScreen === "success" && selectedOpportunities.length > 0 && (
+        <SuccessScreen
+          opportunities={selectedOpportunities}
+          onStartOver={handleStartOver}
         />
       )}
     </main>
