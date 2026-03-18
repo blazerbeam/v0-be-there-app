@@ -58,8 +58,6 @@ function toStringValue(value: unknown, fallback = ""): string {
 function normalizeOpportunity(record: AirtableRecord<Record<string, unknown>>): Opportunity {
   const fields = record.fields || {}
 
-  console.log("[Airtable] Raw fields:", JSON.stringify(fields, null, 2))
-
   const title = getField(fields, "title", "Title", "name", "Name")
   const description = getField(fields, "description", "Description", "details", "Details")
   const committee = getField(fields, "committee", "Committee", "category", "Category")
@@ -182,14 +180,35 @@ async function findParentByEmail(email: string): Promise<ParentRecord | null> {
 
 async function createParent(submission: SurveySubmission): Promise<ParentRecord | null> {
   try {
-    // Start with minimal required fields only
+    // Parents table fields (exact names from Airtable):
+    // - Name, Email, Phone Number, Contact Method Preference
+    // - Children Grades (multi-select), Parent Availability (single select)
+    // - Parent Timing Preference (multi-select)
     const fields: Record<string, unknown> = {
       Name: submission.name,
       Email: submission.email,
     }
 
+    // Add optional fields with correct Airtable field names
+    if (submission.phone) {
+      fields["Phone Number"] = submission.phone
+    }
+    if (submission.preferredContact) {
+      fields["Contact Method Preference"] = submission.preferredContact
+    }
+    if (submission.grades?.length) {
+      fields["Children Grades"] = submission.grades // multi-select: array of strings
+    }
+    if (submission.timeAvailable) {
+      // Parent Availability is single select
+      fields["Parent Availability"] = timeCommitmentMap[submission.timeAvailable] || submission.timeAvailable
+    }
+    if (submission.availability?.length) {
+      // Parent Timing Preference is multi-select: array of strings
+      fields["Parent Timing Preference"] = submission.availability.map((a) => availabilityMap[a] || a)
+    }
+
     const payload = { records: [{ fields }] }
-    console.log("[v0] Creating Parent with payload:", JSON.stringify(payload, null, 2))
 
     const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Parents")}`, {
       method: "POST",
@@ -202,7 +221,7 @@ async function createParent(submission: SurveySubmission): Promise<ParentRecord 
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error("[v0] Create parent error response:", errorText)
+      console.error("[Airtable] Create parent error:", errorText)
       return null
     }
 
@@ -231,22 +250,48 @@ async function createInteractionEvent(
   parentId: string | null
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   try {
-    // Start with minimal fields - we'll add more once we know what exists
-    const fields: Record<string, unknown> = {}
+    // Interaction Events table fields (exact names from Airtable):
+    // - Event Type (single select), Parent (linked record), Opportunity (linked record, singular)
+    // - School (text), Metadata (long text), Timestamp (date)
+    const fields: Record<string, unknown> = {
+      "Event Type": "Survey Submission", // single select - exact value
+      Timestamp: new Date().toISOString(), // date field
+    }
 
     // Link to parent if we have one (linked record field - must be array of IDs)
     if (parentId) {
       fields.Parent = [parentId]
     }
 
-    // Link to selected opportunities (linked record field - must be array of IDs)
+    // Link to first selected opportunity (singular linked record field)
+    // Note: "Opportunity" is singular, not "Opportunities"
     if (submission.selectedOpportunityIds?.length) {
-      fields.Opportunities = submission.selectedOpportunityIds
+      fields.Opportunity = submission.selectedOpportunityIds // array of record IDs
     }
 
+    // School as text field
+    if (submission.school) {
+      fields.School = submission.school
+    }
+
+    // Store full survey payload in Metadata as JSON
+    const metadata = {
+      name: submission.name,
+      email: submission.email,
+      phone: submission.phone,
+      preferredContact: submission.preferredContact,
+      school: submission.school,
+      grades: submission.grades,
+      timeAvailable: submission.timeAvailable,
+      availability: submission.availability,
+      interests: submission.interests,
+      contributionType: submission.contributionType,
+      selectedOpportunityIds: submission.selectedOpportunityIds,
+      submittedAt: new Date().toISOString(),
+    }
+    fields.Metadata = JSON.stringify(metadata, null, 2)
+
     const payload = { records: [{ fields }] }
-    console.log("[v0] Creating Interaction Event with payload:", JSON.stringify(payload, null, 2))
-    console.log("[v0] Submission data for reference:", JSON.stringify(submission, null, 2))
 
     const response = await fetch(`${AIRTABLE_API_URL}/${encodeURIComponent("Interaction Events")}`, {
       method: "POST",
@@ -259,7 +304,7 @@ async function createInteractionEvent(
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error("[v0] Create interaction event error response:", errorText)
+      console.error("[Airtable] Create interaction event error:", errorText)
       return { success: false, error: `Airtable API error: ${response.status}` }
     }
 
