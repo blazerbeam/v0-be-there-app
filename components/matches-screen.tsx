@@ -22,6 +22,7 @@ interface MatchResponse {
   hasStrongMatches: boolean
   totalAvailable: number
   matchedCount: number
+  message?: string
 }
 
 export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenProps) {
@@ -58,6 +59,7 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
 
   const opportunities = data?.opportunities || []
   const hasStrongMatches = data?.hasStrongMatches ?? false
+  const fallbackMessage = data?.message
 
   const toggleSelection = (id: string) => {
     setSelectedIds((prev) => {
@@ -181,7 +183,7 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
         <p className="text-muted-foreground text-lg">
           {hasStrongMatches
             ? "Tap any that interest you — pick as many as you like."
-            : "We're still building out opportunities for your profile. In the meantime, take a look!"
+            : fallbackMessage || "We're still building out opportunities for your profile. In the meantime, take a look!"
           }
         </p>
       </div>
