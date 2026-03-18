@@ -2,6 +2,7 @@ import { Heart, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { InterestForm } from "@/components/interest-form"
+import { AboutPageTracker } from "@/components/about-page-tracker"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -12,6 +13,8 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* Analytics: Track about page view */}
+      <AboutPageTracker />
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between border-b border-border">
         <Link href="/" className="flex items-center gap-2">

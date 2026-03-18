@@ -14,14 +14,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Loader2, CheckCircle2 } from "lucide-react"
+import { analytics } from "@/lib/analytics"
 
 interface InterestFormProps {
   trigger: React.ReactNode
+  /** If true, tracks as PTO early access submission instead of general interest */
+  isPtoForm?: boolean
 }
 
 type FormState = "form" | "success" | "error"
 
-export function InterestForm({ trigger }: InterestFormProps) {
+export function InterestForm({ trigger, isPtoForm = false }: InterestFormProps) {
   const [open, setOpen] = useState(false)
   const [formState, setFormState] = useState<FormState>("form")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -77,6 +80,13 @@ export function InterestForm({ trigger }: InterestFormProps) {
         throw new Error(result.error || "Submission failed")
       }
 
+      // Analytics: Track form submission
+      if (isPtoForm) {
+        analytics.ptoEarlyAccessFormSubmitted()
+      } else {
+        analytics.interestFormSubmitted()
+      }
+
       setFormState("success")
     } catch (err) {
       console.error("Submit error:", err)
@@ -122,6 +132,7 @@ export function InterestForm({ trigger }: InterestFormProps) {
                 href="https://docs.google.com/forms/d/e/1FAIpQLSfxqOuCkBYnwl8TjMCdzbqNvsKhOPn3pu-2G1H4owIc8AsbZg/viewform?usp=dialog"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => analytics.feedbackLinkClicked()}
                 className="text-sm text-primary hover:text-primary/80 underline underline-offset-4"
               >
                 Share feedback

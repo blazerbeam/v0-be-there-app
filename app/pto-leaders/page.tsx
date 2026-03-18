@@ -1,8 +1,9 @@
 import { Heart, ArrowRight, Users, Calendar, CheckCircle, Eye, FileEdit, Sparkles, Zap, LayoutDashboard, AlertCircle, ClipboardList } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { InterestForm } from "@/components/interest-form"
 import { PTOCommandView } from "@/components/pto-command-view"
+import { PTOPageTracker } from "@/components/pto-page-tracker"
+import { PTOEarlyAccessButton } from "@/components/pto-early-access-button"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
 export default function PTOLeadersPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* Analytics: Track PTO page view */}
+      <PTOPageTracker />
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between border-b border-border">
         <Link href="/" className="flex items-center gap-2">
@@ -160,14 +163,7 @@ export default function PTOLeadersPage() {
           {/* CTA below mock */}
           <div className="mt-10 text-center">
             <p className="text-muted-foreground mb-4">Want to try this with your PTO?</p>
-            <InterestForm
-              trigger={
-                <Button size="lg" className="px-8 py-6 text-lg rounded-full gap-2">
-                  Request early access
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
-              }
-            />
+            <PTOEarlyAccessButton />
           </div>
         </div>
       </section>
@@ -278,14 +274,7 @@ export default function PTOLeadersPage() {
           <p className="text-muted-foreground mb-8">
             We&apos;re starting with a small group of schools.
           </p>
-          <InterestForm
-            trigger={
-              <Button size="lg" className="px-8 py-6 text-lg rounded-full gap-2">
-                Request early access
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-            }
-          />
+          <PTOEarlyAccessButton />
         </div>
       </section>
 
