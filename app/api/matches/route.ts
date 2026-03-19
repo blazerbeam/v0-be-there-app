@@ -308,30 +308,80 @@ function splitFilterOpportunities(
   userInterests: string[]
 ): SplitFilterResults {
   
+  console.log("[v0] ========== PIPELINE DEBUG ==========")
+  console.log("[v0] STAGE 0 - INPUT")
+  console.log("[v0]   Total active opportunities:", activeOpportunities.length)
+  console.log("[v0]   User intent:", userIntent)
+  console.log("[v0]   User grades (raw):", JSON.stringify(userGrades))
+  console.log("[v0]   User interests (raw):", JSON.stringify(userInterests))
+  
+  // Debug: Show normalized interests and their tag mappings
+  console.log("[v0] INTEREST MAPPING DEBUG:")
+  for (const interest of userInterests) {
+    const normalizedInterest = normalize(interest)
+    const mappedTags = interestToTags[normalizedInterest] || []
+    console.log(`[v0]   "${interest}" -> normalized: "${normalizedInterest}" -> mapped tags: ${JSON.stringify(mappedTags)}`)
+    if (mappedTags.length === 0) {
+      console.log(`[v0]   WARNING: No mapping found for interest "${interest}"`)
+    }
+  }
+  
   // HARD FILTER 1: Contribution type (never relaxed)
   const typeFiltered = activeOpportunities.filter(opp => 
     matchesContributionType(opp, userIntent)
   )
+  console.log("[v0] STAGE 1 - After contribution type filter:", typeFiltered.length)
   
   // HARD FILTER 2: Grade eligibility (never relaxed)
   const gradeFiltered = typeFiltered.filter(opp => 
     isGradeEligible(opp, userGrades)
   )
+  console.log("[v0] STAGE 2 - After grade filter:", gradeFiltered.length)
+  
+  // Debug: Show ALL opportunity tags before interest matching
+  console.log("[v0] OPPORTUNITY TAGS (all grade-filtered opportunities):")
+  gradeFiltered.forEach(opp => {
+    const normalizedTags = opp.tags.map(normalize)
+    console.log(`[v0]   "${opp.title}": raw tags=${JSON.stringify(opp.tags)} | normalized=${JSON.stringify(normalizedTags)}`)
+  })
   
   const primary: FilterResult[] = []
   const secondary: FilterResult[] = []
   
+  // Debug interest matching for each opportunity
+  console.log("[v0] STAGE 3 - INTEREST MATCHING (per opportunity):")
   for (const opp of gradeFiltered) {
     const { matches, matchedInterest } = matchesUserInterests(opp, userInterests)
     
+    // Debug each match attempt
+    const normalizedOppTags = opp.tags.map(normalize)
+    let matchDetails = ""
+    for (const interest of userInterests) {
+      const normalizedInterest = normalize(interest)
+      const allowedTags = interestToTags[normalizedInterest] || []
+      const normalizedAllowedTags = allowedTags.map(normalize)
+      const foundMatch = normalizedOppTags.some(tag => normalizedAllowedTags.includes(tag))
+      if (foundMatch) {
+        matchDetails = `MATCHED on "${interest}"`
+        break
+      }
+    }
+    if (!matchDetails) {
+      matchDetails = "NO MATCH"
+    }
+    console.log(`[v0]   "${opp.title}": ${matchDetails}`)
+    
     if (matches && matchedInterest) {
-      // Primary: Has an actual interest match
       primary.push({ opp, matchedInterest })
     } else {
-      // Secondary: Grade + type match only, no interest match
       secondary.push({ opp, matchedInterest: null })
     }
   }
+  
+  console.log("[v0] STAGE 4 - FINAL COUNTS")
+  console.log("[v0]   Primary (interest-matched):", primary.length)
+  console.log("[v0]   Secondary (grade-only):", secondary.length)
+  console.log("[v0] ========== END PIPELINE DEBUG ==========")
   
   return { primary, secondary }
 }
