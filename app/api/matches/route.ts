@@ -408,12 +408,6 @@ export async function POST(request: Request) {
       return b.matchScore - a.matchScore
     })
     
-    // CURATED DISPLAY: Limit secondary opportunities
-    // Only show 3 secondary to avoid overwhelming the user
-    const MAX_SECONDARY = 3
-    const displayedSecondary = scoredSecondary.slice(0, MAX_SECONDARY)
-    const hasMoreOpportunities = scoredSecondary.length > MAX_SECONDARY || overflowPrimary.length > 0
-    
     // Determine if we should show universal donation card
     const showUniversalDonation = userIntent === "donate" || userIntent === "both"
     
@@ -444,6 +438,11 @@ export async function POST(request: Request) {
       finalPrimary = scoredPrimary.slice(0, MAX_PRIMARY)
       overflowPrimary = scoredPrimary.slice(MAX_PRIMARY)
     }
+    
+    // CURATED DISPLAY: Limit secondary opportunities
+    const MAX_SECONDARY = 3
+    const displayedSecondary = scoredSecondary.slice(0, MAX_SECONDARY)
+    const hasMoreOpportunities = scoredSecondary.length > MAX_SECONDARY || overflowPrimary.length > 0
     
     // Determine if we have strong matches
     const hasStrongMatches = finalPrimary.length > 0 && finalPrimary.some(m => !m.isUniversalDonation)
