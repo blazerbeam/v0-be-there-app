@@ -62,6 +62,7 @@ interface MatchedOpportunity extends Opportunity {
 
 interface MatchResponse {
   opportunities: MatchedOpportunity[]
+  secondaryOpportunities?: MatchedOpportunity[]
   hasStrongMatches: boolean
   totalAvailable: number
   matchedCount: number
@@ -111,6 +112,7 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
   }, [preferences])
 
   const opportunities = data?.opportunities || []
+  const secondaryOpportunities = data?.secondaryOpportunities || []
   const hasStrongMatches = data?.hasStrongMatches ?? false
   const fallbackMessage = data?.message
   const limitedResults = data?.limitedResults ?? false
@@ -260,8 +262,31 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
           This is just to show interest — someone will follow up with details before anything is finalized.
         </p>
         
-        {/* Limited results message */}
-        {limitedResults && (
+        {/* Secondary section: Other ways to help at your grade level */}
+        {secondaryOpportunities.length > 0 && (
+          <div className="mt-12 pt-8 border-t border-border">
+            <h2 className="font-serif text-xl text-foreground mb-2 text-center">
+              Other ways to help at your grade level
+            </h2>
+            <p className="text-sm text-muted-foreground text-center mb-6">
+              These don&apos;t match your selected interests, but might still be a good fit.
+            </p>
+            <div className="flex flex-col gap-4">
+              {secondaryOpportunities.map((opportunity) => (
+                <OpportunityCard
+                  key={opportunity.id}
+                  opportunity={opportunity}
+                  isSelected={selectedIds.has(opportunity.id)}
+                  onToggle={() => toggleSelection(opportunity.id)}
+                  isSecondary
+                />
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Limited results message - only show if no secondary section */}
+        {limitedResults && secondaryOpportunities.length === 0 && (
           <div className="mt-6 text-center px-4">
             <p className="text-sm text-muted-foreground">
               Want to explore more ways to help?{" "}
@@ -327,10 +352,12 @@ function OpportunityCard({
   opportunity,
   isSelected,
   onToggle,
+  isSecondary = false,
 }: {
   opportunity: MatchedOpportunity
   isSelected: boolean
   onToggle: () => void
+  isSecondary?: boolean
 }) {
   // Determine icon based on match reason text
   const getReasonIcon = () => {
@@ -357,7 +384,9 @@ function OpportunityCard({
   return (
     <button
       onClick={onToggle}
-      className={`w-full text-left bg-card rounded-2xl border p-5 transition-all ${
+      className={`w-full text-left rounded-2xl border p-5 transition-all ${
+        isSecondary ? "bg-muted/50" : "bg-card"
+      } ${
         isSelected 
           ? "border-primary ring-2 ring-primary/20" 
           : "border-border hover:border-primary/30"

@@ -280,71 +280,60 @@ function generateMatchReason(breakdown: ScoreBreakdown, opp: Opportunity): strin
 }
 
 // ===================
-// PROGRESSIVE FILTERING LOGIC
+// FILTERING LOGIC
 // ===================
 // 
-// CRITICAL: Grade filtering is ALWAYS strict. We NEVER show opportunities
-// tagged for other grades in the main recommendations.
-//
-// Tier 1: grade + interest + type (ideal match)
-// Tier 2: grade + type only (relax interest, but keep grade strict)
+// PRIMARY: Interest + Grade + Type (strict match)
+// SECONDARY: Grade + Type only (no interest match) - shown separately
 //
 // Grade eligibility means:
 // - Opportunity is tagged for user's selected grade(s), OR
 // - Opportunity is tagged "All" / open to all grades, OR
 // - Opportunity has no grade restriction (empty gradeRelevance)
 
-interface FilteredResult {
+interface FilterResult {
   opp: Opportunity
   matchedInterest: string | null
-  tier: 1 | 2
 }
 
-function applyProgressiveFiltering(
+interface SplitFilterResults {
+  primary: FilterResult[]   // Interest-matched opportunities
+  secondary: FilterResult[] // Grade-matched but no interest match
+}
+
+function splitFilterOpportunities(
   activeOpportunities: Opportunity[],
   userIntent: "volunteer" | "donate" | "both",
   userGrades: string[],
   userInterests: string[]
-): FilteredResult[] {
+): SplitFilterResults {
   
   // HARD FILTER 1: Contribution type (never relaxed)
   const typeFiltered = activeOpportunities.filter(opp => 
     matchesContributionType(opp, userIntent)
   )
   
-  // HARD FILTER 2: Grade eligibility (NEVER relaxed)
-  // This ensures we never show 5th-grade-only opportunities to 4th-grade users
+  // HARD FILTER 2: Grade eligibility (never relaxed)
   const gradeFiltered = typeFiltered.filter(opp => 
     isGradeEligible(opp, userGrades)
   )
   
-  // TIER 1: Grade + Type + Interest match
-  const tier1Results: FilteredResult[] = []
+  const primary: FilterResult[] = []
+  const secondary: FilterResult[] = []
+  
   for (const opp of gradeFiltered) {
     const { matches, matchedInterest } = matchesUserInterests(opp, userInterests)
+    
     if (matches && matchedInterest) {
-      tier1Results.push({ opp, matchedInterest, tier: 1 })
+      // Primary: Has an actual interest match
+      primary.push({ opp, matchedInterest })
+    } else {
+      // Secondary: Grade + type match only, no interest match
+      secondary.push({ opp, matchedInterest: null })
     }
   }
   
-  // If we have 2+ Tier 1 results, use them exclusively
-  if (tier1Results.length >= 2) {
-    return tier1Results
-  }
-  
-  // TIER 2: Grade + Type only (relax interest requirement)
-  // Still strictly grade-filtered, just without requiring interest match
-  const tier2Results: FilteredResult[] = []
-  for (const opp of gradeFiltered) {
-    // Skip if already in Tier 1
-    if (tier1Results.some(r => r.opp.id === opp.id)) continue
-    
-    // Include without interest match
-    tier2Results.push({ opp, matchedInterest: null, tier: 2 })
-  }
-  
-  // Combine Tier 1 + Tier 2 (all are grade-eligible)
-  return [...tier1Results, ...tier2Results]
+  return { primary, secondary }
 }
 
 // ===================
@@ -364,21 +353,16 @@ export async function POST(request: Request) {
     // HARD FILTER: Active = true
     const activeOpportunities = allOpportunities.filter(opp => opp.active)
     
-    // Apply progressive filtering
-    const filteredResults = applyProgressiveFiltering(
+    // Split into primary (interest-matched) and secondary (grade-only)
+    const { primary, secondary } = splitFilterOpportunities(
       activeOpportunities,
       userIntent,
       preferences.grades,
       preferences.interests
     )
     
-    // Track what tier we ended up using
-    const maxTierUsed = filteredResults.length > 0 
-      ? Math.max(...filteredResults.map(r => r.tier)) 
-      : 0
-    
-    // Score filtered opportunities
-    const scoredOpportunities: MatchedOpportunity[] = filteredResults.map(({ opp, matchedInterest }) => {
+    // Score and sort PRIMARY opportunities (interest-matched)
+    const scoredPrimary: MatchedOpportunity[] = primary.map(({ opp, matchedInterest }) => {
       const breakdown = scoreOpportunity(opp, preferences, matchedInterest)
       return {
         ...opp,
@@ -386,55 +370,65 @@ export async function POST(request: Request) {
         matchReason: generateMatchReason(breakdown, opp),
       }
     })
+    scoredPrimary.sort((a, b) => b.matchScore - a.matchScore)
     
-    // Sort by score (highest first)
-    scoredOpportunities.sort((a, b) => b.matchScore - a.matchScore)
+    // Score and sort SECONDARY opportunities (grade-only, no interest match)
+    // These get a different match reason - never "Matches your interest"
+    const scoredSecondary: MatchedOpportunity[] = secondary.map(({ opp }) => {
+      const breakdown = scoreOpportunity(opp, preferences, null) // No matched interest
+      return {
+        ...opp,
+        matchScore: breakdown.total,
+        matchReason: generateSecondaryMatchReason(breakdown, opp),
+      }
+    })
+    scoredSecondary.sort((a, b) => b.matchScore - a.matchScore)
     
     // Determine if we should show universal donation card
     const showUniversalDonation = userIntent === "donate" || userIntent === "both"
     
-    // Build final results
-    let finalResults: MatchedOpportunity[] = []
+    // Build final PRIMARY results
+    let finalPrimary: MatchedOpportunity[] = []
     
     if (showUniversalDonation) {
-      // Add universal donation card at the top (or near top for "both")
       const universalDonation = createUniversalDonationCard()
       
       if (userIntent === "donate") {
         // Donation-only: universal card first, then any matching donation opportunities
-        finalResults = [universalDonation, ...scoredOpportunities]
+        finalPrimary = [universalDonation, ...scoredPrimary]
       } else {
         // Both: universal donation near top, but after highest-scoring volunteer opportunity
-        const topVolunteer = scoredOpportunities.filter(o => normalizeContributionType(o.type) === "volunteer").slice(0, 1)
-        const rest = scoredOpportunities.filter(o => !topVolunteer.includes(o))
-        finalResults = [...topVolunteer, universalDonation, ...rest]
+        const topVolunteer = scoredPrimary.filter(o => normalizeContributionType(o.type) === "volunteer").slice(0, 1)
+        const rest = scoredPrimary.filter(o => !topVolunteer.includes(o))
+        finalPrimary = [...topVolunteer, universalDonation, ...rest]
       }
     } else {
-      finalResults = scoredOpportunities
+      finalPrimary = scoredPrimary
     }
     
-    // Determine if we have strong matches (Tier 1 with interest matches)
-    const hasStrongMatches = filteredResults.some(r => r.tier === 1 && r.matchedInterest !== null)
+    // Determine if we have strong matches
+    const hasStrongMatches = finalPrimary.length > 0 && finalPrimary.some(m => !m.isUniversalDonation)
     
-    // Build appropriate message based on results
+    // Build appropriate message
     let message: string | undefined
-    if (finalResults.length === 0) {
+    if (finalPrimary.length === 0 && scoredSecondary.length === 0) {
       message = "No opportunities match your selections right now. Check back soon!"
-    } else if (maxTierUsed === 2 && !hasStrongMatches && !showUniversalDonation) {
-      // We only have Tier 2 results (grade-matched but no interest match)
-      message = "Here are opportunities available for your grade level."
-    } else if (finalResults.length <= 2 && !showUniversalDonation) {
-      message = "We found a few strong matches based on your selections."
+    } else if (finalPrimary.length === 0 && scoredSecondary.length > 0) {
+      message = "We didn't find exact matches for your interests, but here are other ways to help."
+    } else if (finalPrimary.length <= 2 && !showUniversalDonation) {
+      message = "We found a few strong matches based on your interests."
     }
     
     return NextResponse.json({
-      opportunities: finalResults,
+      // Primary: strictly interest-matched opportunities
+      opportunities: finalPrimary,
+      // Secondary: grade-matched but no interest match
+      secondaryOpportunities: scoredSecondary,
       hasStrongMatches,
       totalAvailable: allOpportunities.length,
-      matchedCount: finalResults.length,
+      matchedCount: finalPrimary.length,
       message,
-      limitedResults: finalResults.length <= 2 && !showUniversalDonation,
-      filterTier: maxTierUsed,
+      limitedResults: finalPrimary.length <= 2 && !showUniversalDonation,
     })
   } catch (error) {
     console.error("[Matching] Error:", error)
@@ -443,4 +437,27 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
+}
+
+// Generate match reason for secondary (non-interest-matched) opportunities
+function generateSecondaryMatchReason(breakdown: ScoreBreakdown, opp: Opportunity): string {
+  // Priority 1: Schedule-based reasons
+  if (breakdown.timeScore > 0) {
+    return "Works with your schedule"
+  }
+  if (breakdown.availScore > 0) {
+    return "Fits your availability"
+  }
+  
+  // Priority 2: Grade-based
+  if (breakdown.gradeScore >= 3) {
+    return "Great for your kids"
+  }
+  
+  // Fallback
+  const oppType = normalizeContributionType(opp.type)
+  if (oppType === "donate") return "Donation opportunity"
+  if (normalize(opp.timeCommitment).includes("one-time")) return "Quick commitment"
+  
+  return "Available for your grade"
 }
