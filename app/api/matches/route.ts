@@ -361,6 +361,22 @@ export async function POST(request: Request) {
       preferences.interests
     )
     
+    console.log("[v0] === SPLIT FILTER DEBUG ===")
+    console.log("[v0] User interests:", preferences.interests)
+    console.log("[v0] User grades:", preferences.grades)
+    console.log("[v0] User contribution type:", preferences.contributionType, "->", userIntent)
+    console.log("[v0] Active opportunities:", activeOpportunities.length)
+    console.log("[v0] Primary (interest-matched):", primary.length)
+    console.log("[v0] Secondary (grade-only):", secondary.length)
+    
+    // Log a sample of opportunity tags to verify matching
+    if (activeOpportunities.length > 0) {
+      console.log("[v0] Sample opportunity tags:")
+      activeOpportunities.slice(0, 5).forEach(opp => {
+        console.log(`[v0]   ${opp.title}: tags=[${opp.tags.join(", ")}]`)
+      })
+    }
+    
     // Score and sort PRIMARY opportunities (interest-matched)
     const scoredPrimary: MatchedOpportunity[] = primary.map(({ opp, matchedInterest }) => {
       const breakdown = scoreOpportunity(opp, preferences, matchedInterest)
@@ -418,6 +434,12 @@ export async function POST(request: Request) {
     } else if (finalPrimary.length <= 2 && !showUniversalDonation) {
       message = "We found a few strong matches based on your interests."
     }
+    
+    console.log("[v0] === RESPONSE DEBUG ===")
+    console.log("[v0] Final primary opportunities:", finalPrimary.length)
+    console.log("[v0] Secondary opportunities:", scoredSecondary.length)
+    console.log("[v0] Has strong matches:", hasStrongMatches)
+    console.log("[v0] === END DEBUG ===")
     
     return NextResponse.json({
       // Primary: strictly interest-matched opportunities
