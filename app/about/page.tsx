@@ -32,12 +32,20 @@ export default function AboutPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="px-6 py-20 md:py-28 bg-section-primary">
-        <div className="max-w-2xl mx-auto text-center">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground leading-tight text-balance">
+      <section 
+        className="px-6 py-20 md:py-28 relative"
+        style={{ background: 'linear-gradient(180deg, #0F2747 0%, #0B1B3A 60%)' }}
+      >
+        {/* Subtle focal glow behind headline */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(circle at 50% 30%, rgba(255, 159, 28, 0.08), transparent 60%)' }}
+        />
+        <div className="max-w-2xl mx-auto text-center relative z-10">
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white leading-tight text-balance">
             About BeThere
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-[#D6E1F0] max-w-xl mx-auto">
             Making it easier for parents to show up — in ways that actually fit real life.
           </p>
         </div>
