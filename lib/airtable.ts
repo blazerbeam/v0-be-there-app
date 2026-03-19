@@ -351,6 +351,74 @@ export async function createSurveyResponse(
 }
 
 // ===================
+// Tags Table Lookup
+// ===================
+
+// Cache for tag name lookups (record ID -> tag name)
+let tagNameCache: Map<string, string> | null = null
+
+async function fetchTagNames(): Promise<Map<string, string>> {
+  if (tagNameCache) {
+    return tagNameCache
+  }
+
+  const tagMap = new Map<string, string>()
+
+  try {
+    let offset: string | undefined
+
+    do {
+      const url = new URL(`${AIRTABLE_API_URL}/Tags`)
+      if (offset) {
+        url.searchParams.set("offset", offset)
+      }
+
+      const response = await fetch(url.toString(), {
+        headers: {
+          Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        next: { revalidate: 300 }, // Cache for 5 minutes
+      })
+
+      if (!response.ok) {
+        console.warn("[Airtable] Tags table fetch failed, falling back to empty map")
+        break
+      }
+
+      const data: AirtableResponse<Record<string, unknown>> = await response.json()
+      
+      for (const record of data.records) {
+        // Try common field names for the tag name
+        const name = record.fields.Name || record.fields.name || record.fields.Tag || record.fields.tag
+        if (name) {
+          tagMap.set(record.id, String(name))
+        }
+      }
+      
+      offset = data.offset
+    } while (offset)
+
+    tagNameCache = tagMap
+  } catch (err) {
+    console.error("[Airtable] Error fetching tags:", err)
+  }
+
+  return tagMap
+}
+
+// Resolve tag record IDs to their actual names
+function resolveTagNames(tagIds: string[], tagMap: Map<string, string>): string[] {
+  return tagIds.map(id => {
+    const name = tagMap.get(id)
+    if (name) return name
+    // If not in map, check if it's already a name (not a record ID)
+    if (!id.startsWith("rec")) return id
+    return "" // Unknown record ID
+  }).filter(Boolean)
+}
+
+// ===================
 // Opportunities
 // ===================
 
@@ -358,6 +426,9 @@ export async function fetchOpportunities(): Promise<Opportunity[]> {
   if (!AIRTABLE_TOKEN || !AIRTABLE_BASE_ID) {
     throw new Error("Airtable credentials not configured")
   }
+
+  // Fetch tags first so we can resolve tag IDs to names
+  const tagMap = await fetchTagNames()
 
   const allRecords: AirtableRecord<Record<string, unknown>>[] = []
   let offset: string | undefined
@@ -386,5 +457,11 @@ export async function fetchOpportunities(): Promise<Opportunity[]> {
     offset = data.offset
   } while (offset)
 
-  return allRecords.map(normalizeOpportunity)
+  // Normalize records and resolve tag names
+  return allRecords.map(record => {
+    const opp = normalizeOpportunity(record)
+    // Resolve tag record IDs to actual tag names
+    opp.tags = resolveTagNames(opp.tags, tagMap)
+    return opp
+  })
 }
