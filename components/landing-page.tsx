@@ -35,27 +35,27 @@ export function LandingPage({ onStart }: LandingPageProps) {
       {/* Hero Section */}
       <section 
         className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center relative"
-        style={{ background: 'linear-gradient(180deg, #0F2747 0%, #0B1B3A 60%)' }}
+        style={{ background: 'linear-gradient(135deg, #DDE7FF 0%, #C9D8FF 50%, #F6F8FC 100%)' }}
       >
-        {/* Subtle focal glow behind headline */}
+        {/* Subtle warm glow accent */}
         <div 
           className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(circle at 50% 30%, rgba(255, 159, 28, 0.08), transparent 60%)' }}
+          style={{ background: 'radial-gradient(circle at 50% 60%, rgba(245, 165, 36, 0.06), transparent 50%)' }}
         />
         <div className="max-w-2xl mx-auto relative z-10">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white leading-tight text-balance">
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#1D2A44] leading-tight text-balance">
             Find simple ways to help at your child&apos;s school
           </h1>
 
-          <p className="mt-4 text-base text-[#D6E1F0]/80">
+          <p className="mt-4 text-base text-[#5F6F8C]">
             From 30-minute setup help to one-time event support.
           </p>
           
-          <p className="mt-3 text-lg md:text-xl text-[#D6E1F0] max-w-md mx-auto text-pretty">
+          <p className="mt-3 text-lg md:text-xl text-[#3D4F6F] max-w-md mx-auto text-pretty">
             Answer a few quick questions and we&apos;ll show you ways to help that match your time and interests.
           </p>
 
-          <p className="mt-3 text-sm text-[#9FB3C8]">
+          <p className="mt-3 text-sm text-[#5F6F8C]">
             Help set up an event, run a 1-hour station, or pitch in behind the scenes.
           </p>
 
@@ -69,12 +69,12 @@ export function LandingPage({ onStart }: LandingPageProps) {
           </Button>
 
           {/* Subtle PTO entry point */}
-          <p className="mt-8 text-sm text-muted-foreground/70">
+          <p className="mt-8 text-sm text-[#5F6F8C]">
             Running a PTO or school event?{" "}
             <Link 
               href="/pto-leaders" 
               onClick={handlePtoLinkClick}
-              className="underline underline-offset-2 hover:text-muted-foreground transition-colors"
+              className="underline underline-offset-2 hover:text-[#1D2A44] transition-colors"
             >
               See how this works for you
             </Link>
