@@ -66,6 +66,7 @@ interface MatchResponse {
   totalAvailable: number
   matchedCount: number
   message?: string
+  limitedResults?: boolean
 }
 
 export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenProps) {
@@ -112,6 +113,7 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
   const opportunities = data?.opportunities || []
   const hasStrongMatches = data?.hasStrongMatches ?? false
   const fallbackMessage = data?.message
+  const limitedResults = data?.limitedResults ?? false
 
   const toggleSelection = (id: string) => {
     setSelectedIds((prev) => {
@@ -257,6 +259,21 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
         <p className="mt-6 text-center text-sm text-muted-foreground px-4">
           This is just to show interest — someone will follow up with details before anything is finalized.
         </p>
+        
+        {/* Limited results message */}
+        {limitedResults && (
+          <div className="mt-6 text-center px-4">
+            <p className="text-sm text-muted-foreground">
+              Want to explore more ways to help?{" "}
+              <a 
+                href="/opportunities" 
+                className="text-primary underline underline-offset-2 hover:text-primary/80"
+              >
+                Browse all opportunities
+              </a>
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Footer */}
