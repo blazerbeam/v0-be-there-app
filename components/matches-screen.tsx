@@ -7,42 +7,46 @@ import { analytics } from "@/lib/analytics"
 import type { Opportunity } from "@/lib/airtable"
 import type { UserPreferences } from "@/app/page"
 
-// Helper to determine time estimate category based on timeCommitment string
-function getTimeEstimate(timeCommitment: string): { label: string; level: "low" | "medium" | "high" } {
-  const lower = timeCommitment.toLowerCase()
+// Map time estimate string to a level for color coding
+function getTimeEstimateLevel(timeEstimate: string): "low" | "medium" | "high" {
+  const lower = timeEstimate.toLowerCase()
   
-  // Check for low time indicators (5-15 min or quick)
-  if (lower.includes("5 min") || lower.includes("10 min") || lower.includes("15 min") || 
-      lower.includes("quick") || lower.includes("minimal")) {
-    return { label: "5-15 min", level: "low" }
+  if (lower.includes("5") || lower.includes("10") || lower.includes("15") || lower.includes("quick")) {
+    return "low"
   }
-  
-  // Check for medium time indicators (30-60 min)
-  if (lower.includes("30 min") || lower.includes("45 min") || lower.includes("1 hour") ||
-      lower.includes("hour") && !lower.includes("hours")) {
-    return { label: "30-60 min", level: "medium" }
+  if (lower.includes("1-3") || lower.includes("2") || lower.includes("3") || lower.includes("hour")) {
+    return "high"
   }
-  
-  // Check for high time indicators (1-3 hours or more)
-  if (lower.includes("2 hour") || lower.includes("3 hour") || lower.includes("hours") ||
-      lower.includes("half day") || lower.includes("regular")) {
-    return { label: "1-3 hours", level: "high" }
-  }
-  
-  // Default to medium if we can't determine
-  return { label: "30-60 min", level: "medium" }
+  // Default to medium (30-60 min range)
+  return "medium"
 }
 
-// Helper to determine commitment type
-function getCommitmentType(opportunity: Opportunity): "one-time" | "ongoing" {
+// Fallback: infer time estimate from timeCommitment field if Time Estimate is not set
+function inferTimeEstimate(timeCommitment: string): string {
+  const lower = timeCommitment.toLowerCase()
+  
+  if (lower.includes("5 min") || lower.includes("10 min") || lower.includes("15 min") || 
+      lower.includes("quick") || lower.includes("minimal")) {
+    return "5-15 min"
+  }
+  if (lower.includes("2 hour") || lower.includes("3 hour") || lower.includes("hours") ||
+      lower.includes("half day")) {
+    return "1-3 hours"
+  }
+  // Default
+  return "30-60 min"
+}
+
+// Fallback: infer commitment type from other fields if Commitment Type is not set
+function inferCommitmentType(opportunity: Opportunity): string {
   const lower = (opportunity.timingWindow + " " + opportunity.timeCommitment + " " + opportunity.tags.join(" ")).toLowerCase()
   
   if (lower.includes("ongoing") || lower.includes("recurring") || lower.includes("weekly") || 
       lower.includes("monthly") || lower.includes("regular") || lower.includes("year-round")) {
-    return "ongoing"
+    return "Ongoing"
   }
   
-  return "one-time"
+  return "One-time"
 }
 
 interface MatchesScreenProps {
@@ -239,13 +243,12 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
       {/* Opportunity Cards */}
       <div className="max-w-lg mx-auto w-full flex-1">
         <div className="flex flex-col gap-4">
-          {opportunities.map((opportunity, index) => (
+          {opportunities.map((opportunity) => (
             <OpportunityCard
               key={opportunity.id}
               opportunity={opportunity}
               isSelected={selectedIds.has(opportunity.id)}
               onToggle={() => toggleSelection(opportunity.id)}
-              isHighNeed={index === 0 || (opportunity.matchScore >= 80 && index < 2)}
             />
           ))}
         </div>
@@ -301,12 +304,10 @@ function OpportunityCard({
   opportunity,
   isSelected,
   onToggle,
-  isHighNeed = false,
 }: {
   opportunity: MatchedOpportunity
   isSelected: boolean
   onToggle: () => void
-  isHighNeed?: boolean
 }) {
   // Determine icon based on match reason text
   const getReasonIcon = () => {
@@ -317,9 +318,11 @@ function OpportunityCard({
   }
   const ReasonIcon = getReasonIcon()
   
-  // Get time estimate and commitment type
-  const timeEstimate = getTimeEstimate(opportunity.timeCommitment)
-  const commitmentType = getCommitmentType(opportunity)
+  // Use Airtable fields directly, with fallback to inferred values
+  const timeEstimate = opportunity.timeEstimate || inferTimeEstimate(opportunity.timeCommitment)
+  const timeLevel = getTimeEstimateLevel(timeEstimate)
+  const commitmentType = opportunity.commitmentType || inferCommitmentType(opportunity)
+  const isHighNeed = opportunity.highNeed === true
   
   // Time level colors
   const timeLevelColors = {
@@ -377,14 +380,14 @@ function OpportunityCard({
       {/* Time estimate and commitment type badges */}
       <div className="flex items-center gap-2 mb-3">
         {/* Time estimate badge */}
-        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${timeLevelColors[timeEstimate.level]}`}>
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${timeLevelColors[timeLevel]}`}>
           <Clock className="w-3 h-3" />
-          <span>{timeEstimate.label}</span>
+          <span>{timeEstimate}</span>
         </div>
         
         {/* Commitment type badge */}
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
-          {commitmentType === "ongoing" ? (
+          {commitmentType.toLowerCase() === "ongoing" ? (
             <>
               <RefreshCw className="w-3 h-3" />
               <span>Ongoing</span>

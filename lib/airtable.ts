@@ -34,6 +34,10 @@ export interface Opportunity {
   tags: string[]
   active: boolean
   type: string // "Volunteer", "Donation", or "Both"
+  // New explicit fields from Airtable
+  commitmentType: string // "One-time" or "Ongoing"
+  timeEstimate: string // e.g., "5-15 min", "30-60 min", "1-3 hours"
+  highNeed: boolean // Whether this opportunity has high need
 }
 
 function getField(fields: Record<string, unknown>, ...keys: string[]) {
@@ -74,6 +78,11 @@ function normalizeOpportunity(record: AirtableRecord<Record<string, unknown>>): 
   const tags = getField(fields, "tags", "Tags")
   const active = getField(fields, "active", "Active")
   const type = getField(fields, "type", "Type")
+  
+  // New explicit fields
+  const commitmentType = getField(fields, "Commitment Type", "commitment_type", "commitmentType")
+  const timeEstimate = getField(fields, "Time Estimate", "time_estimate", "timeEstimate")
+  const highNeed = getField(fields, "High Need", "high_need", "highNeed")
 
   return {
     id: record.id,
@@ -89,6 +98,10 @@ function normalizeOpportunity(record: AirtableRecord<Record<string, unknown>>): 
     tags: toArray(tags),
     active: active === true || active === "true" || active === 1,
     type: toStringValue(type, "Volunteer"), // Default to Volunteer if not specified
+    // New explicit fields - empty string means "not set" for UI to fallback
+    commitmentType: toStringValue(commitmentType, ""),
+    timeEstimate: toStringValue(timeEstimate, ""),
+    highNeed: highNeed === true || highNeed === "true" || highNeed === 1 || highNeed === "checked",
   }
 }
 
