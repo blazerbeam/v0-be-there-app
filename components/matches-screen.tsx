@@ -68,6 +68,7 @@ interface MatchResponse {
   matchedCount: number
   message?: string
   limitedResults?: boolean
+  hasMoreOpportunities?: boolean
 }
 
 export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenProps) {
@@ -115,7 +116,7 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
   const secondaryOpportunities = data?.secondaryOpportunities || []
   const hasStrongMatches = data?.hasStrongMatches ?? false
   const fallbackMessage = data?.message
-  const limitedResults = data?.limitedResults ?? false
+  const hasMoreOpportunities = data?.hasMoreOpportunities ?? false
 
   const toggleSelection = (id: string) => {
     setSelectedIds((prev) => {
@@ -298,18 +299,16 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
           </div>
         )}
         
-        {/* Limited results message - only show if very few total results */}
-        {(opportunities.length + secondaryOpportunities.length) <= 2 && (
-          <div className="mt-6 text-center px-4">
-            <p className="text-sm text-muted-foreground">
-              Want to explore more ways to help?{" "}
-              <a 
-                href="/opportunities" 
-                className="text-primary underline underline-offset-2 hover:text-primary/80"
-              >
-                Browse all opportunities
-              </a>
-            </p>
+        {/* See more opportunities link - show when there are more beyond the curated set */}
+        {hasMoreOpportunities && (
+          <div className="mt-8 text-center">
+            <a 
+              href="/opportunities" 
+              className="inline-flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors"
+            >
+              See more opportunities
+              <span aria-hidden="true">&rarr;</span>
+            </a>
           </div>
         )}
       </div>
