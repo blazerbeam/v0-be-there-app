@@ -32,12 +32,20 @@ export default function PTOLeadersPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="px-6 pt-16 md:pt-24 pb-10">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground leading-tight text-balance">
+      <section 
+        className="px-6 pt-16 md:pt-24 pb-10 relative"
+        style={{ background: 'linear-gradient(180deg, #0F2747 0%, #0B1B3A 60%)' }}
+      >
+        {/* Subtle focal glow behind headline */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(circle at 50% 30%, rgba(255, 159, 28, 0.08), transparent 60%)' }}
+        />
+        <div className="max-w-3xl mx-auto text-center relative z-10">
+          <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-white leading-tight text-balance">
             Run PTO events without chasing volunteers
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-[#D6E1F0] max-w-2xl mx-auto">
             Turn committees and events into small, realistic ways parents can actually help.
           </p>
         </div>
