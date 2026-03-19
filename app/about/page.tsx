@@ -52,7 +52,7 @@ export default function AboutPage() {
       </section>
 
       {/* Callout Statement */}
-      <section className="px-6 py-16 md:py-20">
+      <section className="px-6 py-20 md:py-24 bg-section-elevated">
         <div className="max-w-3xl mx-auto">
           <blockquote className="text-center container-subtle rounded-2xl p-8 md:p-10">
             <p className="text-xl md:text-2xl text-foreground font-serif leading-relaxed text-balance">
@@ -63,9 +63,9 @@ export default function AboutPage() {
       </section>
 
       {/* How It Works - Visual Cards */}
-      <section className="px-6 py-16 md:py-20 bg-section-alt">
+      <section className="px-6 py-20 md:py-24 bg-section-primary section-divider-top">
         <div className="max-w-4xl mx-auto">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center">
+          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center section-heading">
             How it works
           </h2>
           <div className="grid sm:grid-cols-3 gap-6">
@@ -107,9 +107,9 @@ export default function AboutPage() {
       </section>
 
       {/* The Goal */}
-      <section className="px-6 py-16 md:py-20">
+      <section className="px-6 py-20 md:py-24 bg-section-elevated section-divider-top">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-6">
+          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-6 section-heading">
             The goal
           </h2>
           <p className="text-muted-foreground mb-4">
@@ -122,7 +122,7 @@ export default function AboutPage() {
       </section>
 
       {/* PTO Link Card */}
-      <section className="px-6 py-12 md:py-16 bg-card">
+      <section className="px-6 py-16 md:py-20 bg-section-primary section-divider-top">
         <div className="max-w-xl mx-auto">
           <div className="p-6 md:p-8 bg-primary/5 rounded-2xl border border-primary/20 text-center">
             <p className="text-foreground font-medium mb-3">
@@ -140,9 +140,9 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="px-6 py-16 md:py-20">
+      <section className="px-6 py-20 md:py-24 bg-section-elevated section-divider-top">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-4 text-balance">
+          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-4 text-balance section-heading">
             Ready to find ways to help?
           </h2>
           <p className="text-muted-foreground mb-8">
@@ -167,7 +167,7 @@ export default function AboutPage() {
       </section>
 
       {/* Who's behind BeThere */}
-      <section className="px-6 py-16 md:py-20 border-t border-border bg-section-primary">
+      <section className="px-6 py-20 md:py-24 bg-section-primary section-divider-top">
         <div className="max-w-readable mx-auto">
           <h2 className="font-serif text-lg md:text-xl text-foreground mb-8 text-center">
             Who&apos;s behind BeThere

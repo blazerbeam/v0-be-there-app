@@ -83,7 +83,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
       </section>
 
       {/* Features Section */}
-      <section className="px-6 py-12 md:py-16 bg-card">
+      <section className="px-6 py-16 md:py-20 bg-section-primary section-divider-top">
         <div className="max-w-4xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8">
             <div className="flex flex-col items-center text-center p-6">
