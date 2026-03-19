@@ -282,11 +282,22 @@ function generateMatchReason(breakdown: ScoreBreakdown, opp: Opportunity): strin
 // ===================
 // PROGRESSIVE FILTERING LOGIC
 // ===================
+// 
+// CRITICAL: Grade filtering is ALWAYS strict. We NEVER show opportunities
+// tagged for other grades in the main recommendations.
+//
+// Tier 1: grade + interest + type (ideal match)
+// Tier 2: grade + type only (relax interest, but keep grade strict)
+//
+// Grade eligibility means:
+// - Opportunity is tagged for user's selected grade(s), OR
+// - Opportunity is tagged "All" / open to all grades, OR
+// - Opportunity has no grade restriction (empty gradeRelevance)
 
 interface FilteredResult {
   opp: Opportunity
   matchedInterest: string | null
-  tier: 1 | 2 | 3
+  tier: 1 | 2
 }
 
 function applyProgressiveFiltering(
@@ -296,59 +307,44 @@ function applyProgressiveFiltering(
   userInterests: string[]
 ): FilteredResult[] {
   
-  // Always filter by contribution type first (never relaxed)
+  // HARD FILTER 1: Contribution type (never relaxed)
   const typeFiltered = activeOpportunities.filter(opp => 
     matchesContributionType(opp, userIntent)
   )
   
-  // TIER 1: Strict match (interest + grade + type)
+  // HARD FILTER 2: Grade eligibility (NEVER relaxed)
+  // This ensures we never show 5th-grade-only opportunities to 4th-grade users
+  const gradeFiltered = typeFiltered.filter(opp => 
+    isGradeEligible(opp, userGrades)
+  )
+  
+  // TIER 1: Grade + Type + Interest match
   const tier1Results: FilteredResult[] = []
-  for (const opp of typeFiltered) {
-    const gradeOk = isGradeEligible(opp, userGrades)
-    if (!gradeOk) continue
-    
+  for (const opp of gradeFiltered) {
     const { matches, matchedInterest } = matchesUserInterests(opp, userInterests)
     if (matches && matchedInterest) {
-      // Only Tier 1 if there's an actual interest match (not just "no interests selected")
       tier1Results.push({ opp, matchedInterest, tier: 1 })
     }
   }
   
-  // If we have 2+ Tier 1 results, use them
+  // If we have 2+ Tier 1 results, use them exclusively
   if (tier1Results.length >= 2) {
     return tier1Results
   }
   
-  // TIER 2: Relax grade (interest + type, ignore grade)
+  // TIER 2: Grade + Type only (relax interest requirement)
+  // Still strictly grade-filtered, just without requiring interest match
   const tier2Results: FilteredResult[] = []
-  for (const opp of typeFiltered) {
+  for (const opp of gradeFiltered) {
     // Skip if already in Tier 1
     if (tier1Results.some(r => r.opp.id === opp.id)) continue
     
-    const { matches, matchedInterest } = matchesUserInterests(opp, userInterests)
-    if (matches && matchedInterest) {
-      tier2Results.push({ opp, matchedInterest, tier: 2 })
-    }
+    // Include without interest match
+    tier2Results.push({ opp, matchedInterest: null, tier: 2 })
   }
   
-  // Combine Tier 1 + Tier 2
-  const combined12 = [...tier1Results, ...tier2Results]
-  if (combined12.length >= 2) {
-    return combined12
-  }
-  
-  // TIER 3: Relax interest (type only, no interest match required)
-  const tier3Results: FilteredResult[] = []
-  for (const opp of typeFiltered) {
-    // Skip if already in Tier 1 or 2
-    if (combined12.some(r => r.opp.id === opp.id)) continue
-    
-    // Tier 3: no interest match, so matchedInterest is null
-    tier3Results.push({ opp, matchedInterest: null, tier: 3 })
-  }
-  
-  // Combine all tiers
-  return [...combined12, ...tier3Results]
+  // Combine Tier 1 + Tier 2 (all are grade-eligible)
+  return [...tier1Results, ...tier2Results]
 }
 
 // ===================
@@ -417,19 +413,16 @@ export async function POST(request: Request) {
       finalResults = scoredOpportunities
     }
     
-    // Determine if we have strong matches (Tier 1 or 2 with interest matches)
-    const hasStrongMatches = filteredResults.some(r => r.tier <= 2 && r.matchedInterest !== null)
+    // Determine if we have strong matches (Tier 1 with interest matches)
+    const hasStrongMatches = filteredResults.some(r => r.tier === 1 && r.matchedInterest !== null)
     
-    // Build appropriate message based on tier used
+    // Build appropriate message based on results
     let message: string | undefined
     if (finalResults.length === 0) {
       message = "No opportunities match your selections right now. Check back soon!"
-    } else if (maxTierUsed === 3 && !showUniversalDonation) {
-      // We had to relax interest filtering
-      message = "We expanded your search to show more options."
-    } else if (maxTierUsed === 2) {
-      // We had to relax grade filtering
-      message = "Here are opportunities that match your interests."
+    } else if (maxTierUsed === 2 && !hasStrongMatches && !showUniversalDonation) {
+      // We only have Tier 2 results (grade-matched but no interest match)
+      message = "Here are opportunities available for your grade level."
     } else if (finalResults.length <= 2 && !showUniversalDonation) {
       message = "We found a few strong matches based on your selections."
     }
