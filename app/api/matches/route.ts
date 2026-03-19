@@ -51,20 +51,21 @@ function hasGradeOverlap(oppGrades: string[], userGrades: string[]): boolean {
 // INTEREST TAG MAPPING
 // ===================
 
-// Map user interests to EXACT tag values (for strict filtering)
+// Map UI interest labels (normalized to lowercase) to EXACT Airtable tag values
+// Only exact matches count - no fuzzy/partial matching
 const interestToTags: Record<string, string[]> = {
-  "arts & crafts": ["arts & crafts", "art", "crafts", "creative", "design"],
-  "sports & fitness": ["sports & fitness", "sports", "fitness", "athletic", "pe"],
-  "reading & literacy": ["reading & literacy", "reading", "literacy", "library", "books"],
-  "stem & tech": ["stem & tech", "stem", "tech", "science", "math", "coding"],
-  "outdoor activities": ["outdoor activities", "outdoor", "garden", "nature", "playground"],
-  "event planning": ["event planning", "events", "planning", "coordination"],
-  "food & hospitality": ["food & hospitality", "food", "hospitality", "kitchen", "cooking"],
-  "photography": ["photography", "photo", "camera", "media", "yearbook"],
-  "music": ["music", "band", "choir", "concert"],
-  "fundraising": ["fundraising", "donation", "sponsor", "auction"],
-  "administrative": ["administrative", "admin", "office", "clerical"],
-  "mentoring": ["mentoring", "mentor", "tutor", "teaching", "coaching"],
+  "arts & crafts": ["arts & crafts", "arts", "crafts"],
+  "sports & fitness": ["sports & fitness", "sports", "fitness"],
+  "reading & literacy": ["reading & literacy", "reading", "literacy"],
+  "stem & tech": ["stem & tech", "stem", "technology", "tech"],
+  "outdoor activities": ["outdoor activities", "outdoors", "gardening"],
+  "event planning": ["event planning", "events", "organizing"],
+  "food & hospitality": ["food & hospitality", "food", "hospitality"],
+  "photography": ["photography"],
+  "music": ["music"],
+  "fundraising": ["fundraising"],
+  "administrative": ["administrative", "admin", "communications"],
+  "mentoring": ["mentoring"],
 }
 
 // ===================
@@ -120,26 +121,32 @@ function createUniversalDonationCard(): MatchedOpportunity {
 // ===================
 
 // Check if opportunity matches at least one user interest via TAGS ONLY
+// Uses STRICT matching - tag must exactly equal one of the mapped values
 function matchesUserInterests(opp: Opportunity, userInterests: string[]): { matches: boolean; matchedInterest: string | null } {
   if (userInterests.length === 0) {
     // No interests selected = all opportunities are eligible
     return { matches: true, matchedInterest: null }
   }
   
+  // Normalize opportunity tags for comparison
   const oppTags = opp.tags.map(normalize)
   
   for (const interest of userInterests) {
     const interestLower = normalize(interest)
-    const allowedTags = interestToTags[interestLower] || [interestLower]
+    const allowedTags = interestToTags[interestLower] || []
     
-    // Check if ANY opportunity tag matches ANY allowed tag for this interest
-    const hasTagMatch = oppTags.some(oppTag => 
-      allowedTags.some(allowedTag => 
-        oppTag === allowedTag || oppTag.includes(allowedTag) || allowedTag.includes(oppTag)
-      )
+    // Skip if we don't have a mapping for this interest
+    if (allowedTags.length === 0) continue
+    
+    // Normalize allowed tags for comparison
+    const normalizedAllowedTags = allowedTags.map(normalize)
+    
+    // STRICT MATCH: opportunity tag must exactly equal one of the allowed tags
+    const hasExactTagMatch = oppTags.some(oppTag => 
+      normalizedAllowedTags.includes(oppTag)
     )
     
-    if (hasTagMatch) {
+    if (hasExactTagMatch) {
       return { matches: true, matchedInterest: interest }
     }
   }
