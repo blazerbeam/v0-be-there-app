@@ -52,9 +52,9 @@ export default function PTOLeadersPage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="px-6 py-16 md:py-20">
+      <section className="px-6 py-20 md:py-24 bg-section-elevated">
         <div className="max-w-4xl mx-auto">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center">
+          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center section-heading">
             How it works
           </h2>
           <div className="space-y-8">
@@ -90,7 +90,7 @@ export default function PTOLeadersPage() {
       </section>
 
       {/* Example Walkthrough Section */}
-      <section className="px-6 py-16 md:py-20 bg-section-primary">
+      <section className="px-6 py-20 md:py-24 bg-section-primary section-divider-top">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
             <span className="text-sm font-medium text-primary uppercase tracking-wide">Example</span>
@@ -153,9 +153,9 @@ export default function PTOLeadersPage() {
       </section>
 
       {/* PTO Command View Mock */}
-      <section className="px-6 py-16 md:py-20">
+      <section className="px-6 py-20 md:py-24 bg-section-alt section-divider-top">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
+          <div className="text-center mb-10">
             <h2 className="font-serif text-2xl md:text-3xl text-foreground">
               Example PTO Command View
             </h2>
@@ -163,7 +163,9 @@ export default function PTOLeadersPage() {
               See committees, events, volunteers, and gaps in one place.
             </p>
           </div>
-          <PTOCommandView />
+          <div className="embedded-container">
+            <PTOCommandView />
+          </div>
           
           {/* CTA below mock */}
           <div className="mt-10 text-center">
@@ -174,7 +176,7 @@ export default function PTOLeadersPage() {
       </section>
 
       {/* Before vs After Comparison Section */}
-      <section className="px-6 py-16 md:py-20 bg-section-alt">
+      <section className="px-6 py-20 md:py-24 bg-section-primary section-divider-top">
         <div className="max-w-4xl mx-auto">
           <div className="grid md:grid-cols-2 gap-6 md:gap-8">
             {/* Before */}
@@ -227,9 +229,9 @@ export default function PTOLeadersPage() {
       </section>
 
       {/* Key Features Section */}
-      <section className="px-6 py-16 md:py-20">
+      <section className="px-6 py-20 md:py-24 bg-section-elevated section-divider-top">
         <div className="max-w-5xl mx-auto">
-          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center">
+          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center section-heading">
             Built for busy PTO leaders
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -271,7 +273,7 @@ export default function PTOLeadersPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="px-6 py-16 md:py-24">
+      <section className="px-6 py-20 md:py-28 bg-section-primary section-divider-top">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-foreground mb-3 text-balance">
             Want to try this with your PTO?
