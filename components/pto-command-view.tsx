@@ -4,9 +4,9 @@ import { Users, Calendar, ClipboardList, FolderOpen, Plus, ChevronRight } from "
 
 export function PTOCommandView() {
   return (
-    <div className="bg-background border border-border rounded-2xl overflow-hidden shadow-lg">
+    <div className="bg-[#0B1B3A] border border-border rounded-2xl overflow-hidden shadow-lg">
       {/* Top Bar */}
-      <div className="bg-card border-b border-border px-4 py-3 flex items-center justify-between">
+      <div className="bg-[#122E57] border-b border-border px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="font-serif text-sm text-primary">FH</span>
@@ -26,8 +26,8 @@ export function PTOCommandView() {
       </div>
 
       <div className="flex min-h-[420px]">
-        {/* Left Sidebar */}
-        <div className="w-44 bg-card border-r border-border p-3 flex-shrink-0">
+        {/* Left Sidebar - Darker */}
+        <div className="w-44 bg-[#081428] border-r border-border p-3 flex-shrink-0">
           <nav className="space-y-1">
             <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors">
               <FolderOpen className="w-4 h-4" />
@@ -103,8 +103,8 @@ export function PTOCommandView() {
           </div>
 
           {/* Center Panel - Selected Event */}
-          <div className="flex-1 p-4 bg-muted/30">
-            <div className="bg-background rounded-xl border border-border p-4">
+          <div className="flex-1 p-4 bg-[#0F2747]">
+            <div className="bg-[#1A365D] rounded-xl border border-border p-4">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-serif text-lg text-foreground">Spring Carnival</h2>
                 <span className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded-full font-medium">Draft</span>
@@ -118,7 +118,7 @@ export function PTOCommandView() {
               <h3 className="text-sm font-medium text-foreground mb-3">Suggested Opportunities</h3>
               <div className="space-y-2">
                 {/* Task 1 */}
-                <div className="bg-card rounded-lg p-3 border border-border">
+                <div className="bg-[#234876] rounded-lg p-3 border border-border">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-foreground">Setup Crew</span>
                     <span className="text-xs text-muted-foreground">30 min</span>
@@ -138,7 +138,7 @@ export function PTOCommandView() {
                 </div>
 
                 {/* Task 2 */}
-                <div className="bg-card rounded-lg p-3 border border-border">
+                <div className="bg-[#234876] rounded-lg p-3 border border-border">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-foreground">Ticket Table</span>
                     <span className="text-xs text-muted-foreground">1 hr shifts</span>
@@ -160,7 +160,7 @@ export function PTOCommandView() {
                 </div>
 
                 {/* Task 3 */}
-                <div className="bg-card rounded-lg p-3 border border-border">
+                <div className="bg-[#234876] rounded-lg p-3 border border-border">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-foreground">Cleanup Crew</span>
                     <span className="text-xs text-muted-foreground">30 min</span>
@@ -185,21 +185,21 @@ export function PTOCommandView() {
           <div className="w-52 border-l border-border p-4 flex-shrink-0">
             <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Interested Parents</h3>
             <div className="space-y-2 mb-6">
-              <div className="flex items-center gap-2 p-2 bg-card rounded-lg border border-border">
+              <div className="flex items-center gap-2 p-2 bg-[#1A365D] rounded-lg border border-border">
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs text-primary">J</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-foreground truncate">Jessica T.</p>
                   <p className="text-[10px] text-muted-foreground truncate">Evenings, setup</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 p-2 bg-card rounded-lg border border-border">
+              <div className="flex items-center gap-2 p-2 bg-[#1A365D] rounded-lg border border-border">
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs text-primary">M</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-foreground truncate">Michael R.</p>
                   <p className="text-[10px] text-muted-foreground truncate">Weekends, outdoors</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 p-2 bg-card rounded-lg border border-border">
+              <div className="flex items-center gap-2 p-2 bg-[#1A365D] rounded-lg border border-border">
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs text-primary">A</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-foreground truncate">Amanda K.</p>

@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Heart, Users, Calendar, ArrowRight } from "lucide-react"
+import { Users, Calendar, Heart, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { analytics } from "@/lib/analytics"
 
@@ -24,12 +24,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <Heart className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <span className="font-serif text-xl text-foreground">BeThere</span>
-        </div>
+        <span className="font-serif text-xl font-semibold text-primary">BeThere</span>
         <nav className="flex items-center gap-6">
           <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             About
@@ -59,7 +54,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
           <Button 
             onClick={handleStartClick}
             size="lg"
-            className="mt-10 px-8 py-6 text-lg rounded-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+            className="mt-10 px-8 py-6 text-lg rounded-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 btn-primary-glow"
           >
             See ways I can help
             <ArrowRight className="w-5 h-5" />
