@@ -262,7 +262,13 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
       {/* Footer */}
       <footer className="max-w-lg mx-auto w-full pt-10 pb-6 text-center space-y-3">
         <p className="text-sm text-muted-foreground">
-          Nothing catching your eye? <button className="text-primary underline underline-offset-2 hover:text-primary/80">See everything</button>
+          Nothing catching your eye?{" "}
+          <a 
+            href="/opportunities" 
+            className="text-primary underline underline-offset-2 hover:text-primary/80"
+          >
+            See everything
+          </a>
         </p>
         <p className="text-xs text-muted-foreground/70">
           Not quite what you expected?{" "}
