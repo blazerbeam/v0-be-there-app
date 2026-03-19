@@ -76,7 +76,11 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
   const [data, setData] = useState<MatchResponse | null>(null)
   const [error, setError] = useState<Error | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [showSecondary, setShowSecondary] = useState(false)
   const hasTrackedView = useRef(false)
+  
+  // Limit secondary opportunities to 3 when expanded
+  const MAX_VISIBLE_SECONDARY = 3
 
   // Analytics: Track recommendations viewed (only once when data loads)
   useEffect(() => {
@@ -253,6 +257,13 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
 
       {/* Opportunity Cards */}
       <div className="max-w-lg mx-auto w-full flex-1">
+        {/* Summary message when we have a small number of strong matches */}
+        {opportunities.length > 0 && opportunities.length <= 3 && hasStrongMatches && (
+          <p className="text-sm text-muted-foreground mb-4 text-center">
+            We found {opportunities.length} strong {opportunities.length === 1 ? "match" : "matches"} based on your selections.
+          </p>
+        )}
+        
         {/* Primary opportunities (interest-matched) */}
         {opportunities.length > 0 && (
           <div className="flex flex-col gap-4">
@@ -272,43 +283,76 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
           This is just to show interest — someone will follow up with details before anything is finalized.
         </p>
         
-        {/* Secondary section: Show as main content if no primary, otherwise as separate section */}
-        {secondaryOpportunities.length > 0 && (
-          <div className={opportunities.length > 0 ? "mt-12 pt-8 border-t border-border" : ""}>
-            {opportunities.length > 0 && (
+        {/* Secondary section: Collapsed by default when there are primary results */}
+        {secondaryOpportunities.length > 0 && opportunities.length > 0 && (
+          <div className="mt-10 pt-6 border-t border-border">
+            {!showSecondary ? (
+              /* Collapsed state - show toggle button */
+              <button
+                onClick={() => setShowSecondary(true)}
+                className="w-full text-center py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                See other ways to help at your grade level ({secondaryOpportunities.length} more)
+              </button>
+            ) : (
+              /* Expanded state - show limited secondary opportunities */
               <>
-                <h2 className="font-serif text-xl text-foreground mb-2 text-center">
-                  Other ways to help at your grade level
+                <h2 className="font-serif text-lg text-foreground mb-1 text-center">
+                  Other ways to help
                 </h2>
-                <p className="text-sm text-muted-foreground text-center mb-6">
+                <p className="text-sm text-muted-foreground text-center mb-5">
                   These don&apos;t match your selected interests, but might still be a good fit.
                 </p>
+                <div className="flex flex-col gap-4">
+                  {secondaryOpportunities.slice(0, MAX_VISIBLE_SECONDARY).map((opportunity) => (
+                    <OpportunityCard
+                      key={opportunity.id}
+                      opportunity={opportunity}
+                      isSelected={selectedIds.has(opportunity.id)}
+                      onToggle={() => toggleSelection(opportunity.id)}
+                      isSecondary
+                    />
+                  ))}
+                </div>
+                {/* Show link to browse all if there are more than the visible limit */}
+                {(secondaryOpportunities.length > MAX_VISIBLE_SECONDARY || hasMoreOpportunities) && (
+                  <div className="mt-6 text-center">
+                    <a 
+                      href="/opportunities" 
+                      className="inline-flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors"
+                    >
+                      Browse all opportunities
+                      <span aria-hidden="true">&rarr;</span>
+                    </a>
+                  </div>
+                )}
               </>
             )}
-            <div className="flex flex-col gap-4">
-              {secondaryOpportunities.map((opportunity) => (
-                <OpportunityCard
-                  key={opportunity.id}
-                  opportunity={opportunity}
-                  isSelected={selectedIds.has(opportunity.id)}
-                  onToggle={() => toggleSelection(opportunity.id)}
-                  isSecondary={opportunities.length > 0}
-                />
-              ))}
-            </div>
           </div>
         )}
         
-        {/* See more opportunities link - show when there are more beyond the curated set */}
-        {hasMoreOpportunities && (
-          <div className="mt-8 text-center">
-            <a 
-              href="/opportunities" 
-              className="inline-flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors"
-            >
-              See more opportunities
-              <span aria-hidden="true">&rarr;</span>
-            </a>
+        {/* Secondary as primary content when no primary matches exist */}
+        {secondaryOpportunities.length > 0 && opportunities.length === 0 && (
+          <div className="flex flex-col gap-4">
+            {secondaryOpportunities.slice(0, MAX_VISIBLE_SECONDARY).map((opportunity) => (
+              <OpportunityCard
+                key={opportunity.id}
+                opportunity={opportunity}
+                isSelected={selectedIds.has(opportunity.id)}
+                onToggle={() => toggleSelection(opportunity.id)}
+              />
+            ))}
+            {(secondaryOpportunities.length > MAX_VISIBLE_SECONDARY || hasMoreOpportunities) && (
+              <div className="mt-4 text-center">
+                <a 
+                  href="/opportunities" 
+                  className="inline-flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors"
+                >
+                  See more opportunities
+                  <span aria-hidden="true">&rarr;</span>
+                </a>
+              </div>
+            )}
           </div>
         )}
       </div>
