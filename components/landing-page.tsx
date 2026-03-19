@@ -33,21 +33,29 @@ export function LandingPage({ onStart }: LandingPageProps) {
       </header>
 
       {/* Hero Section */}
-      <section className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground leading-tight text-balance">
+      <section 
+        className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center relative"
+        style={{ background: 'linear-gradient(180deg, #0F2747 0%, #0B1B3A 60%)' }}
+      >
+        {/* Subtle focal glow behind headline */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(circle at 50% 30%, rgba(255, 159, 28, 0.08), transparent 60%)' }}
+        />
+        <div className="max-w-2xl mx-auto relative z-10">
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white leading-tight text-balance">
             Find simple ways to help at your child&apos;s school
           </h1>
 
-          <p className="mt-6 text-base text-muted-foreground/80">
+          <p className="mt-4 text-base text-[#D6E1F0]/80">
             From 30-minute setup help to one-time event support.
           </p>
           
-          <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-md mx-auto text-pretty">
+          <p className="mt-3 text-lg md:text-xl text-[#D6E1F0] max-w-md mx-auto text-pretty">
             Answer a few quick questions and we&apos;ll show you ways to help that match your time and interests.
           </p>
 
-          <p className="mt-3 text-sm text-muted-foreground/70">
+          <p className="mt-3 text-sm text-[#9FB3C8]">
             Help set up an event, run a 1-hour station, or pitch in behind the scenes.
           </p>
 
