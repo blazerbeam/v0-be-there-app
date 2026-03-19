@@ -4,72 +4,71 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================
-   DEEP BLUE THEME - Refined
-   Base: #0B1B3A | Primary: #0F2747 | Alt: #122E57
-   Brand: #FF9F1C (orange)
+   LIGHT THEME - Welcoming & Modern
+   Background: #F6F8FC | Cards: White | Brand: #F5A524 (orange)
    ============================================ */
 :root {
-  /* Base background: #0B1B3A */
-  --background: oklch(0.17 0.045 250);
-  /* Headings: #FFFFFF */
-  --foreground: oklch(1 0 0);
+  /* Background base: #F6F8FC - very light cool gray */
+  --background: oklch(0.975 0.005 250);
+  /* Primary text: #1D2A44 - deep navy */
+  --foreground: oklch(0.25 0.04 250);
   
-  /* Card/Primary sections: #0F2747 */
-  --card: oklch(0.22 0.05 250);
-  --card-foreground: oklch(1 0 0);
+  /* Cards: White with slight transparency */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.25 0.04 250);
   
   /* Popover matches cards */
-  --popover: oklch(0.22 0.05 250);
-  --popover-foreground: oklch(1 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.25 0.04 250);
   
-  /* Primary: Warm orange #FF9F1C */
-  --primary: oklch(0.75 0.18 65);
-  --primary-foreground: oklch(0.15 0.03 250);
+  /* Primary: Warm orange #F5A524 */
+  --primary: oklch(0.75 0.17 70);
+  --primary-foreground: oklch(1 0 0);
   
-  /* Secondary/Alt sections: #122E57 */
-  --secondary: oklch(0.26 0.055 250);
-  --secondary-foreground: oklch(1 0 0);
+  /* Secondary: Soft blue tint #EEF2FF */
+  --secondary: oklch(0.96 0.02 260);
+  --secondary-foreground: oklch(0.25 0.04 250);
   
   /* Muted backgrounds */
-  --muted: oklch(0.22 0.05 250);
-  /* Body text: #D6E1F0 */
-  --muted-foreground: oklch(0.88 0.02 240);
+  --muted: oklch(0.96 0.01 250);
+  /* Secondary text: #5F6F8C - muted blue-gray */
+  --muted-foreground: oklch(0.52 0.03 250);
   
-  /* Accent: Warm yellow */
-  --accent: oklch(0.85 0.15 85);
-  --accent-foreground: oklch(0.15 0.03 250);
+  /* Accent: Soft lavender #9D8CFF */
+  --accent: oklch(0.68 0.15 280);
+  --accent-foreground: oklch(1 0 0);
   
   /* Destructive */
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(1 0 0);
   
-  /* Borders: subtle white at 8% opacity equivalent */
-  --border: oklch(0.35 0.035 250);
-  --input: oklch(0.22 0.05 250);
-  --ring: oklch(0.75 0.18 65);
+  /* Borders: subtle gray */
+  --border: oklch(0.90 0.01 250);
+  --input: oklch(0.96 0.01 250);
+  --ring: oklch(0.75 0.17 70);
   
   /* Charts */
-  --chart-1: oklch(0.75 0.18 65);
-  --chart-2: oklch(0.85 0.15 85);
-  --chart-3: oklch(0.65 0.12 250);
-  --chart-4: oklch(0.55 0.08 250);
-  --chart-5: oklch(0.45 0.06 250);
+  --chart-1: oklch(0.75 0.17 70);
+  --chart-2: oklch(0.68 0.15 280);
+  --chart-3: oklch(0.70 0.12 30);
+  --chart-4: oklch(0.78 0.10 260);
+  --chart-5: oklch(0.65 0.08 250);
   
   --radius: 1rem;
   
-  /* Sidebar: darker than base */
-  --sidebar: oklch(0.14 0.04 250);
-  --sidebar-foreground: oklch(1 0 0);
-  --sidebar-primary: oklch(0.75 0.18 65);
-  --sidebar-primary-foreground: oklch(0.15 0.03 250);
-  --sidebar-accent: oklch(0.22 0.05 250);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-border: oklch(0.30 0.04 250);
-  --sidebar-ring: oklch(0.75 0.18 65);
+  /* Sidebar */
+  --sidebar: oklch(0.98 0.005 250);
+  --sidebar-foreground: oklch(0.25 0.04 250);
+  --sidebar-primary: oklch(0.75 0.17 70);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.96 0.02 260);
+  --sidebar-accent-foreground: oklch(0.25 0.04 250);
+  --sidebar-border: oklch(0.90 0.01 250);
+  --sidebar-ring: oklch(0.75 0.17 70);
   
-  /* Custom section backgrounds */
-  --section-primary: oklch(0.22 0.05 250);
-  --section-alt: oklch(0.26 0.055 250);
+  /* Custom section backgrounds - soft variations */
+  --section-primary: oklch(0.96 0.015 260);
+  --section-alt: oklch(0.98 0.01 250);
 }
 
 .dark {
@@ -164,13 +163,13 @@
 
 /* Typography hierarchy */
 .text-heading {
-  color: #FFFFFF;
+  color: #1D2A44;
 }
 .text-body {
-  color: #D6E1F0;
+  color: #3D4F6F;
 }
 .text-secondary {
-  color: #9FB3C8;
+  color: #5F6F8C;
 }
 
 /* Section backgrounds for visual separation */
@@ -181,29 +180,43 @@
   background-color: var(--section-alt);
 }
 
-/* Subtle container styling */
+/* Subtle container styling - light theme version */
 .container-subtle {
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Hero gradient background */
+.hero-gradient {
+  background: linear-gradient(135deg, #DDE7FF 0%, #C9D8FF 40%, #F6F8FC 100%);
 }
 
 /* Enhanced buttons */
 .btn-primary-glow {
-  box-shadow: 0 4px 15px rgba(255, 159, 28, 0.3);
+  box-shadow: 0 4px 15px rgba(245, 165, 36, 0.25);
   transition: all 0.2s ease;
 }
 .btn-primary-glow:hover {
-  box-shadow: 0 6px 20px rgba(255, 159, 28, 0.45);
+  box-shadow: 0 6px 20px rgba(245, 165, 36, 0.35);
   transform: translateY(-1px);
 }
 
-/* Card hover effects */
+/* Card hover effects - light theme */
 .card-interactive {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 .card-interactive:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* White card styling */
+.card-white {
+  background-color: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 /* Max width for readability */
