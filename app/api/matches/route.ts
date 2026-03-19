@@ -307,69 +307,21 @@ function splitFilterOpportunities(
   userGrades: string[],
   userInterests: string[]
 ): SplitFilterResults {
-  
-  console.log("[v0] ========== PIPELINE DEBUG ==========")
-  console.log("[v0] STAGE 0 - INPUT")
-  console.log("[v0]   Total active opportunities:", activeOpportunities.length)
-  console.log("[v0]   User intent:", userIntent)
-  console.log("[v0]   User grades (raw):", JSON.stringify(userGrades))
-  console.log("[v0]   User interests (raw):", JSON.stringify(userInterests))
-  
-  // Debug: Show normalized interests and their tag mappings
-  console.log("[v0] INTEREST MAPPING DEBUG:")
-  for (const interest of userInterests) {
-    const normalizedInterest = normalize(interest)
-    const mappedTags = interestToTags[normalizedInterest] || []
-    console.log(`[v0]   "${interest}" -> normalized: "${normalizedInterest}" -> mapped tags: ${JSON.stringify(mappedTags)}`)
-    if (mappedTags.length === 0) {
-      console.log(`[v0]   WARNING: No mapping found for interest "${interest}"`)
-    }
-  }
-  
   // HARD FILTER 1: Contribution type (never relaxed)
   const typeFiltered = activeOpportunities.filter(opp => 
     matchesContributionType(opp, userIntent)
   )
-  console.log("[v0] STAGE 1 - After contribution type filter:", typeFiltered.length)
   
   // HARD FILTER 2: Grade eligibility (never relaxed)
   const gradeFiltered = typeFiltered.filter(opp => 
     isGradeEligible(opp, userGrades)
   )
-  console.log("[v0] STAGE 2 - After grade filter:", gradeFiltered.length)
-  
-  // Debug: Show ALL opportunity tags before interest matching
-  console.log("[v0] OPPORTUNITY TAGS (all grade-filtered opportunities):")
-  gradeFiltered.forEach(opp => {
-    const normalizedTags = opp.tags.map(normalize)
-    console.log(`[v0]   "${opp.title}": raw tags=${JSON.stringify(opp.tags)} | normalized=${JSON.stringify(normalizedTags)}`)
-  })
   
   const primary: FilterResult[] = []
   const secondary: FilterResult[] = []
   
-  // Debug interest matching for each opportunity
-  console.log("[v0] STAGE 3 - INTEREST MATCHING (per opportunity):")
   for (const opp of gradeFiltered) {
     const { matches, matchedInterest } = matchesUserInterests(opp, userInterests)
-    
-    // Debug each match attempt
-    const normalizedOppTags = opp.tags.map(normalize)
-    let matchDetails = ""
-    for (const interest of userInterests) {
-      const normalizedInterest = normalize(interest)
-      const allowedTags = interestToTags[normalizedInterest] || []
-      const normalizedAllowedTags = allowedTags.map(normalize)
-      const foundMatch = normalizedOppTags.some(tag => normalizedAllowedTags.includes(tag))
-      if (foundMatch) {
-        matchDetails = `MATCHED on "${interest}"`
-        break
-      }
-    }
-    if (!matchDetails) {
-      matchDetails = "NO MATCH"
-    }
-    console.log(`[v0]   "${opp.title}": ${matchDetails}`)
     
     if (matches && matchedInterest) {
       primary.push({ opp, matchedInterest })
@@ -377,11 +329,6 @@ function splitFilterOpportunities(
       secondary.push({ opp, matchedInterest: null })
     }
   }
-  
-  console.log("[v0] STAGE 4 - FINAL COUNTS")
-  console.log("[v0]   Primary (interest-matched):", primary.length)
-  console.log("[v0]   Secondary (grade-only):", secondary.length)
-  console.log("[v0] ========== END PIPELINE DEBUG ==========")
   
   return { primary, secondary }
 }
@@ -411,23 +358,7 @@ export async function POST(request: Request) {
       preferences.interests
     )
     
-    console.log("[v0] === SPLIT FILTER DEBUG ===")
-    console.log("[v0] User interests:", preferences.interests)
-    console.log("[v0] User grades:", preferences.grades)
-    console.log("[v0] User contribution type:", preferences.contributionType, "->", userIntent)
-    console.log("[v0] Active opportunities:", activeOpportunities.length)
-    console.log("[v0] Primary (interest-matched):", primary.length)
-    console.log("[v0] Secondary (grade-only):", secondary.length)
-    
-    // Log a sample of opportunity tags to verify matching
-    if (activeOpportunities.length > 0) {
-      console.log("[v0] Sample opportunity tags:")
-      activeOpportunities.slice(0, 5).forEach(opp => {
-        console.log(`[v0]   ${opp.title}: tags=[${opp.tags.join(", ")}]`)
-      })
-    }
-    
-    // Score and sort PRIMARY opportunities (interest-matched)
+    // Score PRIMARY opportunities (interest-matched)
     const scoredPrimary: MatchedOpportunity[] = primary.map(({ opp, matchedInterest }) => {
       const breakdown = scoreOpportunity(opp, preferences, matchedInterest)
       return {
@@ -436,7 +367,28 @@ export async function POST(request: Request) {
         matchReason: generateMatchReason(breakdown, opp),
       }
     })
-    scoredPrimary.sort((a, b) => b.matchScore - a.matchScore)
+    
+    // CURATED SORTING: Prioritize by High Need > Interest Match > Time Alignment > Score
+    scoredPrimary.sort((a, b) => {
+      // 1. High Need opportunities first
+      if (a.highNeed && !b.highNeed) return -1
+      if (!a.highNeed && b.highNeed) return 1
+      
+      // 2. Strong interest matches (those with "Matches your interest" reason)
+      const aHasInterestMatch = a.matchReason.includes("Matches your interest")
+      const bHasInterestMatch = b.matchReason.includes("Matches your interest")
+      if (aHasInterestMatch && !bHasInterestMatch) return -1
+      if (!aHasInterestMatch && bHasInterestMatch) return 1
+      
+      // 3. Time alignment (check if time-related reason)
+      const aHasTimeMatch = a.matchReason.includes("schedule") || a.matchReason.includes("availability")
+      const bHasTimeMatch = b.matchReason.includes("schedule") || b.matchReason.includes("availability")
+      if (aHasTimeMatch && !bHasTimeMatch) return -1
+      if (!aHasTimeMatch && bHasTimeMatch) return 1
+      
+      // 4. Fall back to overall score
+      return b.matchScore - a.matchScore
+    })
     
     // Score and sort SECONDARY opportunities (grade-only, no interest match)
     // These get a different match reason - never "Matches your interest"
@@ -448,28 +400,49 @@ export async function POST(request: Request) {
         matchReason: generateSecondaryMatchReason(breakdown, opp),
       }
     })
-    scoredSecondary.sort((a, b) => b.matchScore - a.matchScore)
+    
+    // Sort secondary by High Need first, then by score
+    scoredSecondary.sort((a, b) => {
+      if (a.highNeed && !b.highNeed) return -1
+      if (!a.highNeed && b.highNeed) return 1
+      return b.matchScore - a.matchScore
+    })
+    
+    // CURATED DISPLAY: Limit secondary opportunities
+    // Only show 3 secondary to avoid overwhelming the user
+    const MAX_SECONDARY = 3
+    const displayedSecondary = scoredSecondary.slice(0, MAX_SECONDARY)
+    const hasMoreOpportunities = scoredSecondary.length > MAX_SECONDARY || overflowPrimary.length > 0
     
     // Determine if we should show universal donation card
     const showUniversalDonation = userIntent === "donate" || userIntent === "both"
     
-    // Build final PRIMARY results
+    // CURATED DISPLAY: Limit to max 5 primary opportunities
+    const MAX_PRIMARY = 5
+    
+    // Build final PRIMARY results (curated top results)
     let finalPrimary: MatchedOpportunity[] = []
+    let overflowPrimary: MatchedOpportunity[] = [] // Opportunities beyond the top 5
     
     if (showUniversalDonation) {
       const universalDonation = createUniversalDonationCard()
       
       if (userIntent === "donate") {
         // Donation-only: universal card first, then any matching donation opportunities
-        finalPrimary = [universalDonation, ...scoredPrimary]
+        const allResults = [universalDonation, ...scoredPrimary]
+        finalPrimary = allResults.slice(0, MAX_PRIMARY)
+        overflowPrimary = allResults.slice(MAX_PRIMARY)
       } else {
         // Both: universal donation near top, but after highest-scoring volunteer opportunity
         const topVolunteer = scoredPrimary.filter(o => normalizeContributionType(o.type) === "volunteer").slice(0, 1)
         const rest = scoredPrimary.filter(o => !topVolunteer.includes(o))
-        finalPrimary = [...topVolunteer, universalDonation, ...rest]
+        const allResults = [...topVolunteer, universalDonation, ...rest]
+        finalPrimary = allResults.slice(0, MAX_PRIMARY)
+        overflowPrimary = allResults.slice(MAX_PRIMARY)
       }
     } else {
-      finalPrimary = scoredPrimary
+      finalPrimary = scoredPrimary.slice(0, MAX_PRIMARY)
+      overflowPrimary = scoredPrimary.slice(MAX_PRIMARY)
     }
     
     // Determine if we have strong matches
@@ -485,22 +458,18 @@ export async function POST(request: Request) {
       message = "We found a few strong matches based on your interests."
     }
     
-    console.log("[v0] === RESPONSE DEBUG ===")
-    console.log("[v0] Final primary opportunities:", finalPrimary.length)
-    console.log("[v0] Secondary opportunities:", scoredSecondary.length)
-    console.log("[v0] Has strong matches:", hasStrongMatches)
-    console.log("[v0] === END DEBUG ===")
-    
     return NextResponse.json({
-      // Primary: strictly interest-matched opportunities
+      // Primary: curated top interest-matched opportunities (max 5)
       opportunities: finalPrimary,
-      // Secondary: grade-matched but no interest match
-      secondaryOpportunities: scoredSecondary,
+      // Secondary: curated grade-matched opportunities (max 3)
+      secondaryOpportunities: displayedSecondary,
       hasStrongMatches,
       totalAvailable: allOpportunities.length,
       matchedCount: finalPrimary.length,
       message,
       limitedResults: finalPrimary.length <= 2 && !showUniversalDonation,
+      // Flag for "See more" link
+      hasMoreOpportunities,
     })
   } catch (error) {
     console.error("[Matching] Error:", error)
