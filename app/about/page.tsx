@@ -1,4 +1,4 @@
-import { Heart, ArrowRight, Users, Sparkles, Clock } from "lucide-react"
+import { ArrowRight, Users, Sparkles, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { InterestForm } from "@/components/interest-form"
@@ -18,11 +18,8 @@ export default function AboutPage() {
       
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between border-b border-border">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <Heart className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <span className="font-serif text-xl text-foreground">BeThere</span>
+        <Link href="/" className="font-serif text-xl font-semibold text-primary">
+          BeThere
         </Link>
         <nav className="flex items-center gap-6">
           <Link href="/about" className="text-sm font-medium text-foreground">
@@ -35,21 +32,29 @@ export default function AboutPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="px-6 py-20 md:py-28 bg-card">
-        <div className="max-w-2xl mx-auto text-center">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground leading-tight text-balance">
+      <section 
+        className="px-6 py-20 md:py-28 relative"
+        style={{ background: 'linear-gradient(180deg, #0F2747 0%, #0B1B3A 60%)' }}
+      >
+        {/* Subtle focal glow behind headline */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(circle at 50% 30%, rgba(255, 159, 28, 0.08), transparent 60%)' }}
+        />
+        <div className="max-w-2xl mx-auto text-center relative z-10">
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white leading-tight text-balance">
             About BeThere
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-[#D6E1F0] max-w-xl mx-auto">
             Making it easier for parents to show up — in ways that actually fit real life.
           </p>
         </div>
       </section>
 
       {/* Callout Statement */}
-      <section className="px-6 py-14 md:py-16">
+      <section className="px-6 py-16 md:py-20">
         <div className="max-w-3xl mx-auto">
-          <blockquote className="text-center">
+          <blockquote className="text-center container-subtle rounded-2xl p-8 md:p-10">
             <p className="text-xl md:text-2xl text-foreground font-serif leading-relaxed text-balance">
               &ldquo;A small group of parents carry most of the load — while many others want to help, but don&apos;t have a clear way to do it.&rdquo;
             </p>
@@ -58,13 +63,13 @@ export default function AboutPage() {
       </section>
 
       {/* How It Works - Visual Cards */}
-      <section className="px-6 py-16 md:py-20 bg-card">
+      <section className="px-6 py-16 md:py-20 bg-section-alt">
         <div className="max-w-4xl mx-auto">
           <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-12 text-center">
             How it works
           </h2>
           <div className="grid sm:grid-cols-3 gap-6">
-            <div className="p-6 bg-background rounded-2xl border border-border text-center">
+            <div className="p-6 bg-card rounded-2xl border border-border text-center card-interactive">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Users className="w-5 h-5 text-primary" />
               </div>
@@ -75,7 +80,7 @@ export default function AboutPage() {
                 Share your interests and availability
               </p>
             </div>
-            <div className="p-6 bg-background rounded-2xl border border-border text-center">
+            <div className="p-6 bg-card rounded-2xl border border-border text-center card-interactive">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="w-5 h-5 text-primary" />
               </div>
@@ -86,7 +91,7 @@ export default function AboutPage() {
                 Get matched to tasks that fit
               </p>
             </div>
-            <div className="p-6 bg-background rounded-2xl border border-border text-center">
+            <div className="p-6 bg-card rounded-2xl border border-border text-center card-interactive">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Clock className="w-5 h-5 text-primary" />
               </div>
@@ -162,17 +167,19 @@ export default function AboutPage() {
       </section>
 
       {/* Who's behind BeThere */}
-      <section className="px-6 py-14 md:py-18 border-t border-border bg-card/50">
-        <div className="max-w-lg mx-auto">
+      <section className="px-6 py-16 md:py-20 border-t border-border bg-section-primary">
+        <div className="max-w-readable mx-auto">
           <h2 className="font-serif text-lg md:text-xl text-foreground mb-8 text-center">
             Who&apos;s behind BeThere
           </h2>
           
-          <div className="text-center">
-            <h3 className="text-base font-medium text-foreground">Jeremy Myrland</h3>
-            <p className="text-xs text-muted-foreground mt-1">Founder</p>
+          <div className="container-subtle rounded-2xl p-6 md:p-8">
+            <div className="text-center">
+              <h3 className="text-base font-medium text-foreground">Jeremy Myrland</h3>
+              <p className="text-xs text-secondary mt-1">Founder</p>
+            </div>
             
-            <div className="mt-8 space-y-5 text-sm text-muted-foreground text-left leading-relaxed">
+            <div className="mt-8 space-y-5 text-sm text-body text-left leading-relaxed max-w-readable mx-auto">
               <p>
                 I live in Lake Oswego, Oregon and am the dad of twin 4th graders. I currently serve as Vice President of the PTO at their elementary school and am also a board member with the Lake Oswego Schools Foundation.
               </p>
@@ -193,9 +200,9 @@ export default function AboutPage() {
               </p>
             </div>
             
-            <div className="mt-8 pt-6 border-t border-border text-xs text-muted-foreground/70 space-y-1">
+            <div className="mt-8 pt-6 border-t border-border text-xs text-secondary text-center space-y-1">
               <p>
-                <a href="mailto:hello@bethere.community" className="hover:text-muted-foreground transition-colors">
+                <a href="mailto:hello@bethere.community" className="hover:text-foreground transition-colors">
                   jeremy@bethere.community
                 </a>
               </p>
@@ -204,7 +211,7 @@ export default function AboutPage() {
                   href="https://www.linkedin.com/in/jpmyrland/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:text-muted-foreground transition-colors"
+                  className="hover:text-foreground transition-colors"
                 >
                   LinkedIn
                 </a>

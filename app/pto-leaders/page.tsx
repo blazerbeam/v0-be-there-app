@@ -1,4 +1,4 @@
-import { Heart, ArrowRight, Users, Calendar, CheckCircle, Eye, FileEdit, Sparkles, Zap, LayoutDashboard, AlertCircle, ClipboardList } from "lucide-react"
+import { ArrowRight, Users, Calendar, CheckCircle, Eye, FileEdit, Sparkles, Zap, LayoutDashboard, AlertCircle, ClipboardList } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { PTOCommandView } from "@/components/pto-command-view"
@@ -18,11 +18,8 @@ export default function PTOLeadersPage() {
       <PTOPageTracker />
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between border-b border-border">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <Heart className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <span className="font-serif text-xl text-foreground">BeThere</span>
+        <Link href="/" className="font-serif text-xl font-semibold text-primary">
+          BeThere
         </Link>
         <nav className="flex items-center gap-6">
           <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -35,12 +32,20 @@ export default function PTOLeadersPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="px-6 pt-16 md:pt-24 pb-10">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground leading-tight text-balance">
+      <section 
+        className="px-6 pt-16 md:pt-24 pb-10 relative"
+        style={{ background: 'linear-gradient(180deg, #0F2747 0%, #0B1B3A 60%)' }}
+      >
+        {/* Subtle focal glow behind headline */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(circle at 50% 30%, rgba(255, 159, 28, 0.08), transparent 60%)' }}
+        />
+        <div className="max-w-3xl mx-auto text-center relative z-10">
+          <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-white leading-tight text-balance">
             Run PTO events without chasing volunteers
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-[#D6E1F0] max-w-2xl mx-auto">
             Turn committees and events into small, realistic ways parents can actually help.
           </p>
         </div>
@@ -85,7 +90,7 @@ export default function PTOLeadersPage() {
       </section>
 
       {/* Example Walkthrough Section */}
-      <section className="px-6 py-16 md:py-20 bg-card">
+      <section className="px-6 py-16 md:py-20 bg-section-primary">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
             <span className="text-sm font-medium text-primary uppercase tracking-wide">Example</span>
@@ -169,7 +174,7 @@ export default function PTOLeadersPage() {
       </section>
 
       {/* Before vs After Comparison Section */}
-      <section className="px-6 py-16 md:py-20 bg-card">
+      <section className="px-6 py-16 md:py-20 bg-section-alt">
         <div className="max-w-4xl mx-auto">
           <div className="grid md:grid-cols-2 gap-6 md:gap-8">
             {/* Before */}
