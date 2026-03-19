@@ -273,6 +273,78 @@ function generateMatchReason(breakdown: ScoreBreakdown, opp: Opportunity): strin
 }
 
 // ===================
+// PROGRESSIVE FILTERING LOGIC
+// ===================
+
+interface FilteredResult {
+  opp: Opportunity
+  matchedInterest: string | null
+  tier: 1 | 2 | 3
+}
+
+function applyProgressiveFiltering(
+  activeOpportunities: Opportunity[],
+  userIntent: "volunteer" | "donate" | "both",
+  userGrades: string[],
+  userInterests: string[]
+): FilteredResult[] {
+  
+  // Always filter by contribution type first (never relaxed)
+  const typeFiltered = activeOpportunities.filter(opp => 
+    matchesContributionType(opp, userIntent)
+  )
+  
+  // TIER 1: Strict match (interest + grade + type)
+  const tier1Results: FilteredResult[] = []
+  for (const opp of typeFiltered) {
+    const gradeOk = isGradeEligible(opp, userGrades)
+    if (!gradeOk) continue
+    
+    const { matches, matchedInterest } = matchesUserInterests(opp, userInterests)
+    if (matches && matchedInterest) {
+      // Only Tier 1 if there's an actual interest match (not just "no interests selected")
+      tier1Results.push({ opp, matchedInterest, tier: 1 })
+    }
+  }
+  
+  // If we have 2+ Tier 1 results, use them
+  if (tier1Results.length >= 2) {
+    return tier1Results
+  }
+  
+  // TIER 2: Relax grade (interest + type, ignore grade)
+  const tier2Results: FilteredResult[] = []
+  for (const opp of typeFiltered) {
+    // Skip if already in Tier 1
+    if (tier1Results.some(r => r.opp.id === opp.id)) continue
+    
+    const { matches, matchedInterest } = matchesUserInterests(opp, userInterests)
+    if (matches && matchedInterest) {
+      tier2Results.push({ opp, matchedInterest, tier: 2 })
+    }
+  }
+  
+  // Combine Tier 1 + Tier 2
+  const combined12 = [...tier1Results, ...tier2Results]
+  if (combined12.length >= 2) {
+    return combined12
+  }
+  
+  // TIER 3: Relax interest (type only, no interest match required)
+  const tier3Results: FilteredResult[] = []
+  for (const opp of typeFiltered) {
+    // Skip if already in Tier 1 or 2
+    if (combined12.some(r => r.opp.id === opp.id)) continue
+    
+    // Tier 3: no interest match, so matchedInterest is null
+    tier3Results.push({ opp, matchedInterest: null, tier: 3 })
+  }
+  
+  // Combine all tiers
+  return [...combined12, ...tier3Results]
+}
+
+// ===================
 // MAIN MATCHING LOGIC
 // ===================
 
@@ -286,31 +358,24 @@ export async function POST(request: Request) {
     // Determine user's contribution intent
     const userIntent = getUserContributionIntent(preferences.contributionType)
     
-    // HARD FILTER 1: Active = true
+    // HARD FILTER: Active = true
     const activeOpportunities = allOpportunities.filter(opp => opp.active)
     
-    // HARD FILTER 2: Contribution type
-    const typeFilteredOpportunities = activeOpportunities.filter(opp => 
-      matchesContributionType(opp, userIntent)
+    // Apply progressive filtering
+    const filteredResults = applyProgressiveFiltering(
+      activeOpportunities,
+      userIntent,
+      preferences.grades,
+      preferences.interests
     )
     
-    // HARD FILTER 3: Grade eligibility
-    const gradeFilteredOpportunities = typeFilteredOpportunities.filter(opp => 
-      isGradeEligible(opp, preferences.grades)
-    )
-    
-    // HARD FILTER 4: Interest filtering (TAG-BASED ONLY)
-    const interestFilteredOpportunities: Array<{ opp: Opportunity; matchedInterest: string | null }> = []
-    
-    for (const opp of gradeFilteredOpportunities) {
-      const { matches, matchedInterest } = matchesUserInterests(opp, preferences.interests)
-      if (matches) {
-        interestFilteredOpportunities.push({ opp, matchedInterest })
-      }
-    }
+    // Track what tier we ended up using
+    const maxTierUsed = filteredResults.length > 0 
+      ? Math.max(...filteredResults.map(r => r.tier)) 
+      : 0
     
     // Score filtered opportunities
-    const scoredOpportunities: MatchedOpportunity[] = interestFilteredOpportunities.map(({ opp, matchedInterest }) => {
+    const scoredOpportunities: MatchedOpportunity[] = filteredResults.map(({ opp, matchedInterest }) => {
       const breakdown = scoreOpportunity(opp, preferences, matchedInterest)
       return {
         ...opp,
@@ -345,17 +410,21 @@ export async function POST(request: Request) {
       finalResults = scoredOpportunities
     }
     
-    // Determine if we have strong matches
-    const hasStrongMatches = scoredOpportunities.length > 0 && scoredOpportunities.some(m => m.matchScore >= 3)
+    // Determine if we have strong matches (Tier 1 or 2 with interest matches)
+    const hasStrongMatches = filteredResults.some(r => r.tier <= 2 && r.matchedInterest !== null)
     
-    // Build appropriate message
+    // Build appropriate message based on tier used
     let message: string | undefined
     if (finalResults.length === 0) {
       message = "No opportunities match your selections right now. Check back soon!"
+    } else if (maxTierUsed === 3 && !showUniversalDonation) {
+      // We had to relax interest filtering
+      message = "We expanded your search to show more options."
+    } else if (maxTierUsed === 2) {
+      // We had to relax grade filtering
+      message = "Here are opportunities that match your interests."
     } else if (finalResults.length <= 2 && !showUniversalDonation) {
       message = "We found a few strong matches based on your selections."
-    } else if (!hasStrongMatches && finalResults.length > 0) {
-      message = "Here are some opportunities that might work for you."
     }
     
     return NextResponse.json({
@@ -364,7 +433,8 @@ export async function POST(request: Request) {
       totalAvailable: allOpportunities.length,
       matchedCount: finalResults.length,
       message,
-      limitedResults: finalResults.length <= 2,
+      limitedResults: finalResults.length <= 2 && !showUniversalDonation,
+      filterTier: maxTierUsed,
     })
   } catch (error) {
     console.error("[Matching] Error:", error)
