@@ -199,56 +199,63 @@ const availabilityMatches: Record<string, string[]> = {
 }
 
 interface ScoreBreakdown {
-  gradeScore: number
-  tagScore: number
+  interestScore: number
+  highNeedScore: number
   timeScore: number
-  availScore: number
+  quickTaskScore: number
   total: number
   matchedInterest: string | null
 }
 
-function scoreOpportunity(opp: Opportunity, preferences: UserPreferences, matchedInterest: string | null): ScoreBreakdown {
+// Detect if user made a broad selection (5+ interests or all interests)
+function isBroadSelection(userInterests: string[]): boolean {
+  const ALL_INTERESTS_COUNT = 12 // Total number of available interests
+  return userInterests.length >= 5 || userInterests.length === ALL_INTERESTS_COUNT
+}
+
+function scoreOpportunity(
+  opp: Opportunity, 
+  preferences: UserPreferences, 
+  matchedInterest: string | null,
+  broadSelection: boolean
+): ScoreBreakdown {
   const breakdown: ScoreBreakdown = {
-    gradeScore: 0,
-    tagScore: 0,
+    interestScore: 0,
+    highNeedScore: 0,
     timeScore: 0,
-    availScore: 0,
+    quickTaskScore: 0,
     total: 0,
     matchedInterest,
   }
 
-  // 1. Grade relevance score
-  if (opp.gradeRelevance.length === 0 || isOpenToAll(opp.gradeRelevance)) {
-    breakdown.gradeScore = 1
-  } else {
-    breakdown.gradeScore = 3
-  }
-
-  // 2. Tag/interest match score (we already know it matches, but give points for the match)
+  // 1. Interest match score
+  // Reduce weight from 5 to 2 when user selected many interests (broad selection)
   if (matchedInterest) {
-    breakdown.tagScore = 3
+    breakdown.interestScore = broadSelection ? 2 : 5
   }
 
-  // 3. Time commitment match
+  // 2. High need score
+  if (opp.highNeed) {
+    breakdown.highNeedScore = 3
+  }
+
+  // 3. Time fit score - matches user's time availability
   const oppTime = normalize(opp.timeCommitment)
   const timeKeywords = timeCommitmentMatches[preferences.timeAvailable] || []
   if (timeKeywords.some(kw => oppTime.includes(kw))) {
     breakdown.timeScore = 2
   }
 
-  // 4. Availability/timing match
-  const oppTiming = normalize(opp.timingWindow)
-  if (oppTiming) {
-    for (const avail of preferences.availability) {
-      const availKeywords = availabilityMatches[avail] || []
-      if (availKeywords.some(kw => oppTiming.includes(kw))) {
-        breakdown.availScore = 2
-        break
-      }
-    }
+  // 4. Quick task bonus - one-time or short commitments
+  const isQuickTask = oppTime.includes("one-time") || 
+                      oppTime.includes("30 min") || 
+                      oppTime.includes("1 hour") ||
+                      normalize(opp.commitmentType || "").includes("one-time")
+  if (isQuickTask) {
+    breakdown.quickTaskScore = 1
   }
 
-  breakdown.total = breakdown.gradeScore + breakdown.tagScore + breakdown.timeScore + breakdown.availScore
+  breakdown.total = breakdown.interestScore + breakdown.highNeedScore + breakdown.timeScore + breakdown.quickTaskScore
   return breakdown
 }
 
@@ -258,23 +265,24 @@ function generateMatchReason(breakdown: ScoreBreakdown, opp: Opportunity): strin
     return `Matches your interest in ${breakdown.matchedInterest}`
   }
   
-  // Priority 2: Schedule-based reasons
+  // Priority 2: High need
+  if (breakdown.highNeedScore > 0) {
+    return "High priority need"
+  }
+  
+  // Priority 3: Schedule-based reasons
   if (breakdown.timeScore > 0) {
     return "Works with your schedule"
   }
-  if (breakdown.availScore > 0) {
-    return "Fits your availability"
-  }
   
-  // Priority 3: Grade-based reasons
-  if (breakdown.gradeScore >= 3) {
-    return "Great for your kids"
+  // Priority 4: Quick task
+  if (breakdown.quickTaskScore > 0) {
+    return "Quick commitment"
   }
   
   // Fallback
   const oppType = normalizeContributionType(opp.type)
   if (oppType === "donate") return "Donation opportunity"
-  if (normalize(opp.timeCommitment).includes("one-time")) return "Quick commitment"
   
   return "Good fit for you"
 }
@@ -299,6 +307,39 @@ interface FilterResult {
 interface SplitFilterResults {
   primary: FilterResult[]   // Interest-matched opportunities
   secondary: FilterResult[] // Grade-matched but no interest match
+}
+
+// Select top N opportunities with category diversity
+// Limits max 2 from the same category/committee to ensure variety
+function selectWithDiversity(sorted: MatchedOpportunity[], limit: number): MatchedOpportunity[] {
+  const selected: MatchedOpportunity[] = []
+  const categoryCounts: Record<string, number> = {}
+  const MAX_PER_CATEGORY = 2
+  
+  for (const opp of sorted) {
+    if (selected.length >= limit) break
+    
+    // Use category or committee as the diversity key
+    const categoryKey = normalize(opp.category || opp.committee || "general")
+    const currentCount = categoryCounts[categoryKey] || 0
+    
+    if (currentCount < MAX_PER_CATEGORY) {
+      selected.push(opp)
+      categoryCounts[categoryKey] = currentCount + 1
+    }
+  }
+  
+  // If we couldn't fill the limit due to diversity constraints, add more
+  if (selected.length < limit) {
+    for (const opp of sorted) {
+      if (selected.length >= limit) break
+      if (!selected.includes(opp)) {
+        selected.push(opp)
+      }
+    }
+  }
+  
+  return selected
 }
 
 function splitFilterOpportunities(
@@ -358,9 +399,15 @@ export async function POST(request: Request) {
       preferences.interests
     )
     
-    // Score PRIMARY opportunities (interest-matched)
+    // Detect if user made a broad selection (5+ interests)
+    const broadSelection = isBroadSelection(preferences.interests)
+    
+    // Track full count before any curation
+    const fullPrimaryCount = primary.length
+    
+    // Score PRIMARY opportunities (interest-matched) using weighted scoring
     const scoredPrimary: MatchedOpportunity[] = primary.map(({ opp, matchedInterest }) => {
-      const breakdown = scoreOpportunity(opp, preferences, matchedInterest)
+      const breakdown = scoreOpportunity(opp, preferences, matchedInterest, broadSelection)
       return {
         ...opp,
         matchScore: breakdown.total,
@@ -368,32 +415,47 @@ export async function POST(request: Request) {
       }
     })
     
-    // CURATED SORTING: Prioritize by High Need > Interest Match > Time Alignment > Score
-    scoredPrimary.sort((a, b) => {
-      // 1. High Need opportunities first
-      if (a.highNeed && !b.highNeed) return -1
-      if (!a.highNeed && b.highNeed) return 1
-      
-      // 2. Strong interest matches (those with "Matches your interest" reason)
-      const aHasInterestMatch = a.matchReason.includes("Matches your interest")
-      const bHasInterestMatch = b.matchReason.includes("Matches your interest")
-      if (aHasInterestMatch && !bHasInterestMatch) return -1
-      if (!aHasInterestMatch && bHasInterestMatch) return 1
-      
-      // 3. Time alignment (check if time-related reason)
-      const aHasTimeMatch = a.matchReason.includes("schedule") || a.matchReason.includes("availability")
-      const bHasTimeMatch = b.matchReason.includes("schedule") || b.matchReason.includes("availability")
-      if (aHasTimeMatch && !bHasTimeMatch) return -1
-      if (!aHasTimeMatch && bHasTimeMatch) return 1
-      
-      // 4. Fall back to overall score
-      return b.matchScore - a.matchScore
-    })
+    // BROAD SELECTION RANKING: Use enhanced priority order
+    if (broadSelection) {
+      scoredPrimary.sort((a, b) => {
+        // 1. High Need first
+        if (a.highNeed && !b.highNeed) return -1
+        if (!a.highNeed && b.highNeed) return 1
+        
+        // 2. Lower time estimate / lower friction (prefer quick tasks)
+        const aTime = normalize(a.timeCommitment || "")
+        const bTime = normalize(b.timeCommitment || "")
+        const aIsQuick = aTime.includes("one-time") || aTime.includes("30 min") || aTime.includes("1 hour") || aTime.includes("5 min")
+        const bIsQuick = bTime.includes("one-time") || bTime.includes("30 min") || bTime.includes("1 hour") || bTime.includes("5 min")
+        if (aIsQuick && !bIsQuick) return -1
+        if (!aIsQuick && bIsQuick) return 1
+        
+        // 3. One-time before ongoing/seasonal
+        const aCommit = normalize(a.commitmentType || "")
+        const bCommit = normalize(b.commitmentType || "")
+        const aIsOneTime = aCommit.includes("one-time") || aTime.includes("one-time")
+        const bIsOneTime = bCommit.includes("one-time") || bTime.includes("one-time")
+        if (aIsOneTime && !bIsOneTime) return -1
+        if (!aIsOneTime && bIsOneTime) return 1
+        
+        // 4. All-grade opportunities before narrow-grade
+        const aIsAllGrade = a.gradeRelevance.length === 0 || isOpenToAll(a.gradeRelevance)
+        const bIsAllGrade = b.gradeRelevance.length === 0 || isOpenToAll(b.gradeRelevance)
+        if (aIsAllGrade && !bIsAllGrade) return -1
+        if (!aIsAllGrade && bIsAllGrade) return 1
+        
+        // 5. Fall back to score
+        return b.matchScore - a.matchScore
+      })
+    } else {
+      // Standard sorting: by total weighted score (descending)
+      scoredPrimary.sort((a, b) => b.matchScore - a.matchScore)
+    }
     
     // Score and sort SECONDARY opportunities (grade-only, no interest match)
     // These get a different match reason - never "Matches your interest"
     const scoredSecondary: MatchedOpportunity[] = secondary.map(({ opp }) => {
-      const breakdown = scoreOpportunity(opp, preferences, null) // No matched interest
+      const breakdown = scoreOpportunity(opp, preferences, null, broadSelection) // No matched interest
       return {
         ...opp,
         matchScore: breakdown.total,
@@ -414,6 +476,12 @@ export async function POST(request: Request) {
     // CURATED DISPLAY: Limit to max 5 primary opportunities
     const MAX_PRIMARY = 5
     
+    // CATEGORY DIVERSITY: For broad selections, avoid filling top 5 with same category
+    let curatedPrimary = scoredPrimary
+    if (broadSelection && scoredPrimary.length > MAX_PRIMARY) {
+      curatedPrimary = selectWithDiversity(scoredPrimary, MAX_PRIMARY)
+    }
+    
     // Build final PRIMARY results (curated top results)
     let finalPrimary: MatchedOpportunity[] = []
     let overflowPrimary: MatchedOpportunity[] = [] // Opportunities beyond the top 5
@@ -423,20 +491,20 @@ export async function POST(request: Request) {
       
       if (userIntent === "donate") {
         // Donation-only: universal card first, then any matching donation opportunities
-        const allResults = [universalDonation, ...scoredPrimary]
+        const allResults = [universalDonation, ...curatedPrimary]
         finalPrimary = allResults.slice(0, MAX_PRIMARY)
-        overflowPrimary = allResults.slice(MAX_PRIMARY)
+        overflowPrimary = scoredPrimary.slice(MAX_PRIMARY) // Use full list for overflow count
       } else {
         // Both: universal donation near top, but after highest-scoring volunteer opportunity
-        const topVolunteer = scoredPrimary.filter(o => normalizeContributionType(o.type) === "volunteer").slice(0, 1)
-        const rest = scoredPrimary.filter(o => !topVolunteer.includes(o))
+        const topVolunteer = curatedPrimary.filter(o => normalizeContributionType(o.type) === "volunteer").slice(0, 1)
+        const rest = curatedPrimary.filter(o => !topVolunteer.includes(o))
         const allResults = [...topVolunteer, universalDonation, ...rest]
         finalPrimary = allResults.slice(0, MAX_PRIMARY)
-        overflowPrimary = allResults.slice(MAX_PRIMARY)
+        overflowPrimary = scoredPrimary.slice(MAX_PRIMARY) // Use full list for overflow count
       }
     } else {
-      finalPrimary = scoredPrimary.slice(0, MAX_PRIMARY)
-      overflowPrimary = scoredPrimary.slice(MAX_PRIMARY)
+      finalPrimary = curatedPrimary.slice(0, MAX_PRIMARY)
+      overflowPrimary = scoredPrimary.slice(MAX_PRIMARY) // Use full list for overflow count
     }
     
     // CURATED DISPLAY: Limit secondary opportunities
@@ -464,7 +532,12 @@ export async function POST(request: Request) {
       secondaryOpportunities: displayedSecondary,
       hasStrongMatches,
       totalAvailable: allOpportunities.length,
+      // Full count of all interest-matched opportunities (before curation)
+      primaryCount: fullPrimaryCount,
+      // Count of displayed primary opportunities
       matchedCount: finalPrimary.length,
+      // Full count of secondary opportunities
+      secondaryCount: secondary.length,
       message,
       limitedResults: finalPrimary.length <= 2 && !showUniversalDonation,
       // Flag for "See more" link
@@ -481,23 +554,24 @@ export async function POST(request: Request) {
 
 // Generate match reason for secondary (non-interest-matched) opportunities
 function generateSecondaryMatchReason(breakdown: ScoreBreakdown, opp: Opportunity): string {
-  // Priority 1: Schedule-based reasons
+  // Priority 1: High need
+  if (breakdown.highNeedScore > 0) {
+    return "High priority need"
+  }
+  
+  // Priority 2: Schedule-based reasons
   if (breakdown.timeScore > 0) {
     return "Works with your schedule"
   }
-  if (breakdown.availScore > 0) {
-    return "Fits your availability"
-  }
   
-  // Priority 2: Grade-based
-  if (breakdown.gradeScore >= 3) {
-    return "Great for your kids"
+  // Priority 3: Quick task
+  if (breakdown.quickTaskScore > 0) {
+    return "Quick commitment"
   }
   
   // Fallback
   const oppType = normalizeContributionType(opp.type)
   if (oppType === "donate") return "Donation opportunity"
-  if (normalize(opp.timeCommitment).includes("one-time")) return "Quick commitment"
   
   return "Available for your grade"
 }
