@@ -309,27 +309,70 @@ interface SplitFilterResults {
   secondary: FilterResult[] // Grade-matched but no interest match
 }
 
-// Select top N opportunities with category diversity
-// Limits max 2 from the same category/committee to ensure variety
+// Map opportunity tags/categories to canonical interest families for diversity
+function getInterestFamily(opp: MatchedOpportunity): string {
+  const tags = opp.tags.map(normalize)
+  const category = normalize(opp.category || "")
+  const committee = normalize(opp.committee || "")
+  
+  // Map to canonical interest families
+  if (tags.some(t => ["arts & crafts", "arts", "crafts"].includes(t))) return "arts"
+  if (tags.some(t => ["sports & fitness", "sports", "fitness"].includes(t))) return "sports"
+  if (tags.some(t => ["reading & literacy", "reading", "literacy"].includes(t))) return "reading"
+  if (tags.some(t => ["stem & tech", "stem", "technology", "tech"].includes(t))) return "stem"
+  if (tags.some(t => ["outdoor activities", "outdoors", "gardening"].includes(t))) return "outdoor"
+  if (tags.some(t => ["event planning", "events", "organizing"].includes(t))) return "events"
+  if (tags.some(t => ["food & hospitality", "food", "hospitality"].includes(t))) return "food"
+  if (tags.some(t => ["photography"].includes(t))) return "photography"
+  if (tags.some(t => ["music"].includes(t))) return "music"
+  if (tags.some(t => ["fundraising"].includes(t))) return "fundraising"
+  if (tags.some(t => ["administrative", "admin", "communications"].includes(t))) return "admin"
+  if (tags.some(t => ["mentoring"].includes(t))) return "mentoring"
+  
+  // Fall back to category or committee
+  if (category) return category
+  if (committee) return committee
+  
+  return "general"
+}
+
+// Select top N opportunities with interest-family diversity for broad mode
+// Limits max 1 from the same interest family initially to ensure variety
 function selectWithDiversity(sorted: MatchedOpportunity[], limit: number): MatchedOpportunity[] {
   const selected: MatchedOpportunity[] = []
-  const categoryCounts: Record<string, number> = {}
-  const MAX_PER_CATEGORY = 2
+  const familyCounts: Record<string, number> = {}
   
+  // PASS 1: Select at most 1 from each interest family (maximize diversity)
   for (const opp of sorted) {
     if (selected.length >= limit) break
     
-    // Use category or committee as the diversity key
-    const categoryKey = normalize(opp.category || opp.committee || "general")
-    const currentCount = categoryCounts[categoryKey] || 0
+    const familyKey = getInterestFamily(opp)
+    const currentCount = familyCounts[familyKey] || 0
     
-    if (currentCount < MAX_PER_CATEGORY) {
+    // First pass: only allow 1 per family
+    if (currentCount < 1) {
       selected.push(opp)
-      categoryCounts[categoryKey] = currentCount + 1
+      familyCounts[familyKey] = currentCount + 1
     }
   }
   
-  // If we couldn't fill the limit due to diversity constraints, add more
+  // PASS 2: If we haven't filled the limit, allow up to 2 per family
+  if (selected.length < limit) {
+    for (const opp of sorted) {
+      if (selected.length >= limit) break
+      if (selected.includes(opp)) continue
+      
+      const familyKey = getInterestFamily(opp)
+      const currentCount = familyCounts[familyKey] || 0
+      
+      if (currentCount < 2) {
+        selected.push(opp)
+        familyCounts[familyKey] = currentCount + 1
+      }
+    }
+  }
+  
+  // PASS 3: If still not full, add remaining by score (ignore diversity)
   if (selected.length < limit) {
     for (const opp of sorted) {
       if (selected.length >= limit) break
@@ -415,14 +458,21 @@ export async function POST(request: Request) {
       }
     })
     
-    // BROAD SELECTION RANKING: Use enhanced priority order
+    // BROAD SELECTION RANKING: Use enhanced priority order with stronger diversity preference
     if (broadSelection) {
       scoredPrimary.sort((a, b) => {
-        // 1. High Need first
+        // 1. High Need first (most important signal)
         if (a.highNeed && !b.highNeed) return -1
         if (!a.highNeed && b.highNeed) return 1
         
-        // 2. Lower time estimate / lower friction (prefer quick tasks)
+        // 2. All-grade opportunities before narrow-grade (ensures broad appeal)
+        // This is higher priority in broad mode to avoid grade-specific clustering
+        const aIsAllGrade = a.gradeRelevance.length === 0 || isOpenToAll(a.gradeRelevance)
+        const bIsAllGrade = b.gradeRelevance.length === 0 || isOpenToAll(b.gradeRelevance)
+        if (aIsAllGrade && !bIsAllGrade) return -1
+        if (!aIsAllGrade && bIsAllGrade) return 1
+        
+        // 3. Lower time estimate / lower friction (prefer quick tasks)
         const aTime = normalize(a.timeCommitment || "")
         const bTime = normalize(b.timeCommitment || "")
         const aIsQuick = aTime.includes("one-time") || aTime.includes("30 min") || aTime.includes("1 hour") || aTime.includes("5 min")
@@ -430,19 +480,13 @@ export async function POST(request: Request) {
         if (aIsQuick && !bIsQuick) return -1
         if (!aIsQuick && bIsQuick) return 1
         
-        // 3. One-time before ongoing/seasonal
+        // 4. One-time before ongoing/seasonal
         const aCommit = normalize(a.commitmentType || "")
         const bCommit = normalize(b.commitmentType || "")
         const aIsOneTime = aCommit.includes("one-time") || aTime.includes("one-time")
         const bIsOneTime = bCommit.includes("one-time") || bTime.includes("one-time")
         if (aIsOneTime && !bIsOneTime) return -1
         if (!aIsOneTime && bIsOneTime) return 1
-        
-        // 4. All-grade opportunities before narrow-grade
-        const aIsAllGrade = a.gradeRelevance.length === 0 || isOpenToAll(a.gradeRelevance)
-        const bIsAllGrade = b.gradeRelevance.length === 0 || isOpenToAll(b.gradeRelevance)
-        if (aIsAllGrade && !bIsAllGrade) return -1
-        if (!aIsAllGrade && bIsAllGrade) return 1
         
         // 5. Fall back to score
         return b.matchScore - a.matchScore
