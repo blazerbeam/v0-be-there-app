@@ -43,6 +43,26 @@ export async function POST(request: Request) {
     const result = await createSurveyResponse(submission)
 
     // Send notification email
+    const timeLabels: Record<string, string> = {
+      minimal: "Just a little (30 min to an hour)",
+      moderate: "A few hours when I can (2-4 hrs/month)",
+      regular: "I've got more time to give (5+ hrs/month)",
+    }
+
+    const availabilityLabels: Record<string, string> = {
+      "weekday-morning": "Weekday Mornings",
+      "weekday-afternoon": "Weekday Afternoons",
+      "weekday-evening": "Weekday Evenings",
+      weekend: "Weekends",
+      flexible: "Flexible / Depends on the week",
+    }
+
+    const contributionLabels: Record<string, string> = {
+      volunteer: "I'd rather give my time",
+      donate: "I'd rather donate",
+      both: "A little of both",
+    }
+
     try {
       await resend.emails.send({
         from: "BeThere <hello@bethere.community>",
@@ -57,13 +77,13 @@ export async function POST(request: Request) {
           <hr/>
           <p><strong>School:</strong> ${submission.school}</p>
           <p><strong>Grades:</strong> ${submission.grades.join(", ")}</p>
-          <p><strong>Time Available:</strong> ${submission.timeAvailable}</p>
-          <p><strong>Availability:</strong> ${submission.availability.join(", ")}</p>
+          <p><strong>Time Available:</strong> ${timeLabels[submission.timeAvailable] || submission.timeAvailable}</p>
+          <p><strong>Availability:</strong> ${submission.availability.map(a => availabilityLabels[a] || a).join(", ")}</p>
           <p><strong>Interests:</strong> ${submission.interests.join(", ")}</p>
-          <p><strong>Contribution Type:</strong> ${submission.contributionType}</p>
+          <p><strong>Contribution Type:</strong> ${contributionLabels[submission.contributionType] || submission.contributionType}</p>
           <hr/>
-          <p><strong>Selected Opportunities:</strong></p>
-          <ul>${submission.selectedOpportunityIds.map(id => `<li>${id}</li>`).join("")}</ul>
+          <p><strong>Selected Opportunities (IDs — check Airtable for titles):</strong></p>
+          <ul>${submission.selectedOpportunityIds.map(id => `<li><a href="https://airtable.com/search?q=${id}">${id}</a></li>`).join("")}</ul>
           <p><em>Submitted at ${new Date().toISOString()}</em></p>
         `,
       })
