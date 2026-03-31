@@ -84,8 +84,11 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
 
   // Analytics: Track recommendations viewed (only once when data loads)
   useEffect(() => {
-    if (data && data.opportunities.length > 0 && !hasTrackedView.current) {
-      analytics.recommendationsViewed()
+    if (data && !hasTrackedView.current) {
+      analytics.recommendationsViewed(
+        data.opportunities.length,
+        data.hasStrongMatches
+      )
       hasTrackedView.current = true
     }
   }, [data])
@@ -122,7 +125,9 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
   const fallbackMessage = data?.message
   const hasMoreOpportunities = data?.hasMoreOpportunities ?? false
 
-  const toggleSelection = (id: string) => {
+  const toggleSelection = (id: string, title: string) => {
+    const isCurrentlySelected = selectedIds.has(id)
+    analytics.opportunityClicked(id, title, isCurrentlySelected)
     setSelectedIds((prev) => {
       const next = new Set(prev)
       if (next.has(id)) {
@@ -135,7 +140,7 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
   }
 
   const handleContinue = () => {
-    // Include selections from both primary and secondary opportunities
+    analytics.contactSubmitted(selectedIds.size)
     const allOpportunities = [...opportunities, ...secondaryOpportunities]
     const selectedOpportunities = allOpportunities.filter((o) => selectedIds.has(o.id))
     onSelect(selectedOpportunities)
@@ -272,7 +277,7 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
                 key={opportunity.id}
                 opportunity={opportunity}
                 isSelected={selectedIds.has(opportunity.id)}
-                onToggle={() => toggleSelection(opportunity.id)}
+                onToggle={() => toggleSelection(opportunity.id, opportunity.title)}
               />
             ))}
           </div>
@@ -309,7 +314,7 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
                       key={opportunity.id}
                       opportunity={opportunity}
                       isSelected={selectedIds.has(opportunity.id)}
-                      onToggle={() => toggleSelection(opportunity.id)}
+                      onToggle={() => toggleSelection(opportunity.id, opportunity.title)}
                       isSecondary
                     />
                   ))}
@@ -339,7 +344,7 @@ export function MatchesScreen({ preferences, onSelect, onBack }: MatchesScreenPr
                 key={opportunity.id}
                 opportunity={opportunity}
                 isSelected={selectedIds.has(opportunity.id)}
-                onToggle={() => toggleSelection(opportunity.id)}
+                onToggle={() => toggleSelection(opportunity.id, opportunity.title)}
               />
             ))}
             {(secondaryOpportunities.length > MAX_VISIBLE_SECONDARY || hasMoreOpportunities) && (
