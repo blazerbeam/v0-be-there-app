@@ -78,38 +78,49 @@ export function SuccessScreen({ opportunities, onStartOver }: SuccessScreenProps
           </ul>
         </div>
 
-        {/* Action */}
+        {/* Share section */}
+        <div className="w-full max-w-sm mb-6 p-5 rounded-2xl bg-primary/5 border border-primary/20 text-center">
+          <p className="font-medium text-foreground mb-1">Know another Forest Hills parent?</p>
+          <p className="text-sm text-muted-foreground mb-4">Send them this link — it takes 60 seconds.</p>
+          <button
+            onClick={() => {
+              const url = "https://www.bethere.community"
+              if (navigator.share) {
+                navigator.share({ title: "BeThere", text: "Find simple ways to help at Forest Hills", url })
+              } else {
+                navigator.clipboard.writeText(url)
+                alert("Link copied to clipboard!")
+              }
+            }}
+            className="w-full py-3 px-6 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+          >
+            Share with a parent
+          </button>
+        </div>
+
+        {/* Explore more - secondary action */}
         <Button
           onClick={onStartOver}
           variant="outline"
-          className="gap-2 rounded-full px-6"
+          className="gap-2 rounded-full px-6 mb-8"
         >
           Explore more opportunities
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
 
-      {/* Feedback prompt */}
-      <div className="text-center mt-8 pt-6 border-t border-border max-w-sm mx-auto">
-        <p className="text-sm text-muted-foreground mb-2">
-          Have 1 minute? Help us improve this early version.
-        </p>
+      <div className="w-full max-w-sm mx-auto mt-4 mb-6 p-5 rounded-2xl bg-amber-50 border border-amber-200 text-center">
+        <p className="font-medium text-foreground mb-1">Have 1 minute?</p>
+        <p className="text-sm text-muted-foreground mb-3">This is an early version — your feedback directly shapes what we build next.</p>
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSfxqOuCkBYnwl8TjMCdzbqNvsKhOPn3pu-2G1H4owIc8AsbZg/viewform?usp=dialog"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-primary hover:text-primary/80 underline underline-offset-4"
+          className="inline-block w-full py-3 px-6 rounded-full bg-amber-500 text-white font-medium hover:bg-amber-600 transition-colors"
         >
-          Share feedback
+          Give feedback
         </a>
       </div>
-
-      {/* Footer */}
-      <footer className="text-center mt-6">
-        <p className="text-sm text-muted-foreground">
-          Thanks for being there for your school community.
-        </p>
-      </footer>
     </div>
   )
 }
