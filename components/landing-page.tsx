@@ -48,7 +48,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
           </h1>
 
           <p className="mt-4 text-base text-[#5F6F8C]">
-            From 30-minute setup help to one-time event support.
+            Built for Forest Hills families. Takes 60 seconds.
           </p>
           
           <p className="mt-3 text-lg md:text-xl text-[#3D4F6F] max-w-md mx-auto text-pretty">
@@ -56,7 +56,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
           </p>
 
           <p className="mt-3 text-sm text-[#5F6F8C]">
-            Help set up an event, run a 1-hour station, or pitch in behind the scenes.
+            No big commitments. No guilt. Just small ways to show up for your kids' school.
           </p>
 
           <Button 
