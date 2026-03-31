@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import type { UserPreferences } from "@/app/page"
+import { analytics } from "@/lib/analytics"
 
 interface OnboardingFlowProps {
   onComplete: (preferences: UserPreferences) => void
@@ -103,7 +104,17 @@ export function OnboardingFlow({ onComplete, onBack }: OnboardingFlowProps) {
     }
   }
 
+  const stepNames = [
+    "school",
+    "grades",
+    "time_available",
+    "availability",
+    "interests",
+    "contribution_type",
+  ]
+
   const handleNext = () => {
+    analytics.onboardingStepCompleted(step, stepNames[step - 1])
     if (step < totalSteps) {
       setStep(step + 1)
     } else {
