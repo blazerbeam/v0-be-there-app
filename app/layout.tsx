@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { DM_Sans, DM_Serif_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { PostHogProvider } from '@/components/posthog-provider'
 import './globals.css'
 
 const dmSans = DM_Sans({ 
@@ -45,6 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${dmSans.variable} ${dmSerif.variable} font-sans antialiased`}>
+        <PostHogProvider />
         {children}
         <Analytics />
       </body>
