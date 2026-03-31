@@ -102,7 +102,7 @@ export function SuccessScreen({ opportunities, onStartOver }: SuccessScreenProps
         <Button
           onClick={onStartOver}
           variant="outline"
-          className="gap-2 rounded-full px-6 mb-8"
+          className="gap-2 rounded-full px-6 my-8"
         >
           Explore more opportunities
           <ArrowRight className="w-4 h-4" />
@@ -116,7 +116,7 @@ export function SuccessScreen({ opportunities, onStartOver }: SuccessScreenProps
           href="https://docs.google.com/forms/d/e/1FAIpQLSfxqOuCkBYnwl8TjMCdzbqNvsKhOPn3pu-2G1H4owIc8AsbZg/viewform?usp=dialog"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block w-full py-3 px-6 rounded-full bg-amber-500 text-white font-medium hover:bg-amber-600 transition-colors"
+          className="inline-block w-full py-3 px-6 rounded-full bg-white text-amber-700 font-medium border border-amber-300 hover:bg-amber-50 transition-colors"
         >
           Give feedback
         </a>
