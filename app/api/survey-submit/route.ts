@@ -1,5 +1,8 @@
 import { createSurveyResponse, type SurveySubmission } from "@/lib/airtable"
 import { NextResponse } from "next/server"
+import { Resend } from "resend"
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: Request) {
   try {
@@ -38,6 +41,36 @@ export async function POST(request: Request) {
     }
 
     const result = await createSurveyResponse(submission)
+
+    // Send notification email
+    try {
+      await resend.emails.send({
+        from: "BeThere <hello@bethere.community>",
+        to: "hello@bethere.community",
+        subject: `New Interest: ${submission.name} — ${submission.school}`,
+        html: `
+          <h2>New BeThere Submission</h2>
+          <p><strong>Name:</strong> ${submission.name}</p>
+          <p><strong>Email:</strong> ${submission.email}</p>
+          <p><strong>Phone:</strong> ${submission.phone || "Not provided"}</p>
+          <p><strong>Preferred Contact:</strong> ${submission.preferredContact}</p>
+          <hr/>
+          <p><strong>School:</strong> ${submission.school}</p>
+          <p><strong>Grades:</strong> ${submission.grades.join(", ")}</p>
+          <p><strong>Time Available:</strong> ${submission.timeAvailable}</p>
+          <p><strong>Availability:</strong> ${submission.availability.join(", ")}</p>
+          <p><strong>Interests:</strong> ${submission.interests.join(", ")}</p>
+          <p><strong>Contribution Type:</strong> ${submission.contributionType}</p>
+          <hr/>
+          <p><strong>Selected Opportunities:</strong></p>
+          <ul>${submission.selectedOpportunityIds.map(id => `<li>${id}</li>`).join("")}</ul>
+          <p><em>Submitted at ${new Date().toISOString()}</em></p>
+        `,
+      })
+    } catch (emailErr) {
+      console.error("[Email] Failed to send notification:", emailErr)
+      // Don't fail the submission if email fails
+    }
 
     if (!result.success) {
       return NextResponse.json(
