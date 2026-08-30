@@ -16,8 +16,8 @@ const dmSerif = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'BeThere - School PTO Volunteer Matching',
-  description: 'Find small, meaningful ways to contribute to your school community',
+  title: 'BeThere — now part of Roost',
+  description: 'BeThere started as a prototype for matching parents to small ways to help. It now ships as part of Roost.',
   generator: 'v0.app',
   icons: {
     icon: [
