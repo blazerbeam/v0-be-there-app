@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Users, Calendar, Heart, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { analytics } from "@/lib/analytics"
+import { RoostSplash } from "@/components/roost-splash"
 
 interface LandingPageProps {
   onStart: () => void
@@ -29,12 +30,20 @@ export function LandingPage({ onStart }: LandingPageProps) {
           <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             About
           </Link>
+          <a
+            href="https://roost.directory"
+            className="text-sm font-medium text-primary hover:underline underline-offset-4"
+          >
+            Now in Roost
+          </a>
         </nav>
       </header>
 
-      {/* Hero Section */}
+      <RoostSplash />
+
+      {/* The original prototype, kept live and now labelled as such. */}
       <section 
-        className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center relative"
+        className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center relative"
         style={{ background: 'linear-gradient(135deg, #DDE7FF 0%, #C9D8FF 50%, #F6F8FC 100%)' }}
       >
         {/* Subtle warm glow accent */}
@@ -43,12 +52,16 @@ export function LandingPage({ onStart }: LandingPageProps) {
           style={{ background: 'radial-gradient(circle at 50% 60%, rgba(245, 165, 36, 0.06), transparent 50%)' }}
         />
         <div className="max-w-2xl mx-auto relative z-10">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#1D2A44] leading-tight text-balance">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5F6F8C]">
+            The original prototype
+          </p>
+
+          <h1 className="mt-4 font-serif text-4xl md:text-5xl lg:text-6xl text-[#1D2A44] leading-tight text-balance">
             Find simple ways to help at your child&apos;s school
           </h1>
 
           <p className="mt-4 text-base text-[#5F6F8C]">
-            Built for Forest Hills families. Takes 60 seconds.
+            Still here, still works. Takes 60 seconds.
           </p>
           
           <p className="mt-3 text-lg md:text-xl text-[#3D4F6F] max-w-md mx-auto text-pretty">
@@ -120,8 +133,18 @@ export function LandingPage({ onStart }: LandingPageProps) {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-6 text-center text-sm text-muted-foreground">
+      <footer className="px-6 py-8 text-center text-sm text-muted-foreground">
         <p>Made with care for busy parents everywhere</p>
+        <p className="mt-2">
+          BeThere now ships as part of{" "}
+          <a
+            href="https://roost.directory"
+            className="font-medium text-primary underline underline-offset-4 hover:text-foreground transition-colors"
+          >
+            Roost
+          </a>
+          .
+        </p>
       </footer>
     </div>
   )

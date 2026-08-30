@@ -28,6 +28,12 @@ export default function AboutPage() {
           <Link href="/pto-leaders" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             For PTO Leaders
           </Link>
+          <a
+            href="https://roost.directory"
+            className="text-sm font-medium text-primary hover:underline underline-offset-4"
+          >
+            Now in Roost
+          </a>
         </nav>
       </header>
 
@@ -222,8 +228,18 @@ export default function AboutPage() {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-6 text-center text-sm text-muted-foreground border-t border-border">
+      <footer className="px-6 py-8 text-center text-sm text-muted-foreground border-t border-border">
         <p>Made with care for busy parents everywhere</p>
+        <p className="mt-2">
+          BeThere now ships as part of{" "}
+          <a
+            href="https://roost.directory"
+            className="font-medium text-primary underline underline-offset-4 hover:text-foreground transition-colors"
+          >
+            Roost
+          </a>
+          .
+        </p>
       </footer>
     </div>
   )
