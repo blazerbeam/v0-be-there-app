@@ -1,6 +1,6 @@
 # BeThere
 
-**Status: finished. BeThere shipped — as part of [Roost](https://roost.directory).**
+**Status: finished. BeThere shipped as part of [Roost](https://roost.directory).**
 
 This repository is the original BeThere prototype, kept online at
 [bethere.community](https://www.bethere.community) as a record of where the idea
@@ -10,7 +10,7 @@ started. The product it became lives at [roost.directory](https://roost.director
 
 ## The problem it was built to test
 
-> A small group of parents carry most of the load — while many others want to help,
+> A small group of parents carry most of the load, while many others want to help,
 > but don't have a clear way to do it.
 
 Every PTO knows this. The usual response is a sign-up sheet and a guilt-tinged
@@ -25,17 +25,17 @@ actually say yes to?*
 
 ## Three stages
 
-### 1. An idea — early 2026
+### 1. An idea: early 2026
 
 Framed at Forest Hills Elementary (Lake Oswego SD, Oregon). Break big volunteer asks
 into 30–60 minute chunks, tag them by skill, interest, grade and availability, then
 match rather than broadcast. Give the PTO side a view of which gaps are still open
 *before* the event rather than the morning of.
 
-### 2. A working prototype — March 2026
+### 2. A working prototype: March 2026
 
 **This repo.** Built in about two weeks (first commit 18 March 2026, last 31 March
-2026 — 134 commits), largely through [v0](https://v0.app), then hand-corrected.
+2026, 134 commits), largely through [v0](https://v0.app), then hand-corrected.
 
 More than a mockup, less than a product:
 
@@ -49,13 +49,13 @@ More than a mockup, less than a product:
 Stack: Next.js App Router, Tailwind v4, shadcn/ui, Airtable, Resend, PostHog, Vercel.
 
 **What it proved:** the flow held. The interesting failure was that the hard part was
-never the matching algorithm — it was that a PTO's committees, events, shifts and
+never the matching algorithm. It was that a PTO's committees, events, shifts and
 people already exist somewhere else, and asking a chair to re-enter all of it into a
 second system is where a tool like this dies.
 
 Which pointed directly at the next stage.
 
-### 3. A real product — June 2026 onward, inside Roost
+### 3. A real product: June 2026 onward, inside Roost
 
 [Roost](https://roost.directory) is a school directory and community platform already
 holding the thing BeThere was missing: the families, the students, the committees, the
@@ -67,12 +67,12 @@ BeThere was rebuilt there rather than beside it:
 |---|---|
 | **Jun 2026** | Design reconciled with Roost's existing Clubs & Committees model (#994), and the shifts / time-slots / publish→match→message loop specified (#1002) |
 | **Jun 2026** | Events, shifts and templates backend landed behind a `bethere` feature flag (#1003); count-pool event jobs followed (#1021) |
-| **Jul 2026** | Chair-curated match notifications — notify a matched parent once per opportunity, not once per reminder (#1034) |
+| **Jul 2026** | Chair-curated match notifications: notify a matched parent once per opportunity, not once per reminder (#1034) |
 | **Aug 2026** | Schools own their own event templates (#1407); public sign-up links so a helper without an account can take a shift |
 
-It runs in production today across four organizations and several thousand families,
-with the matching fed by a directory that was already accurate — the problem the
-prototype couldn't solve on its own.
+It runs in production inside Roost, which now serves seven Lake Oswego schools and about
+2,800 families, with the matching fed by a directory that was already accurate. That was
+the problem the prototype couldn't solve on its own.
 
 ## What's still running here
 
@@ -102,7 +102,7 @@ Without them the app builds and renders; the opportunity list comes back empty.
 
 ## Why keep it up
 
-Two reasons. It is the honest version of how the feature was arrived at — an idea, a
+Two reasons. It is the honest version of how the feature was arrived at: an idea, a
 throwaway thing built fast to see whether anyone would use it, and only then a product.
 And bethere.community still gets traffic from people who heard the name, so it should
 point somewhere useful.
